@@ -1,21 +1,21 @@
 # VisAARD: Vision Language-supported Authoring of Augmented Reality via Demonstrations
 
-**VisAARD** is an open-source, human-in-the-loop authoring tool designed to simplify the creation of AR procedural instructions. By combining egocentric video capture, hand-tracking, and Vision-Language Models (VLMs), it transforms physical demonstrations into digital guidance with automated text and 3D elements.
+**VisAARD** is an open-source, human-in-the-loop authoring tool designed to simplify the creation of AR procedural instructions. By combining egocentric video capture, hand-tracking, and Vision-Language Model (VLM) capabilities, it transforms physical demonstrations into digital, AR-based guidance consisting of textual, video, and 3D instrucional elements.
 
 ## 🛠 System Architecture & Dependencies
 
-VisAARD utilizes a split-system design to balance real-time AR interaction with high-performance AI processing.
+VisAARD utilizes a split-system design.
 
 ### System Stack
 | Component | Role | Technology |
 | :--- | :--- | :--- |
-| **Server (HMD)** | Front-end interface for capture and refinement | HoloLens 2, Unity 6 (6000.0.23f1), MRTK 3 |
-| **Client (PC)** | Back-end for video processing and VLM queries | Python 3.11.8 |
+| **HMD (Server)** | Front-end interface for capture and refinement | HoloLens 2, Unity 6 (6000.0.23f1), MRTK 3 |
+| **PC (Cliet)** | Back-end for video processing and VLM queries | Python 3.11.8 |
 | **VLM** | Action understanding and text generation | OpenAI GPT-5.2 |
 
 ### Communication Stack
 
-The underlying communication between the HoloLens 2 and the PC is built upon two key open-source pillars:
+The underlying communication between the HoloLens 2 and the PC is built upon three open-source projects:
 
 -   **[hl2ss](https://github.com/jdibenes/hl2ss)**: Utilized for high-efficiency streaming of sensor data and egocentric video from the HoloLens 2.
     
@@ -25,9 +25,8 @@ The underlying communication between the HoloLens 2 and the PC is built upon two
 
 ## 📂 Repository Structure
 
--   **`/hl2-unity`**: The Unity 6 project for HoloLens 2. Contains the MRTK3-based UI, hand-tracking data recording logic, and the WebSocket server implementation.
-    
--   **`/pc-python`**: The Python 3.11 application handling frame sampling (3 FPS), VLM API requests via GPT-5.2, and automatic video trimming.    
+-   **`/hl2-unity`**: Contains the server-side Unity implementation for authoring on the HoloLens 2.
+-   **`/pc-python`**: Contains the client-side Python application for streaming, analyzing and communicating with HL2.    
 
 ----------
 
