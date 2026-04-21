@@ -25,12 +25,9 @@ The underlying communication between the HoloLens 2 and the PC is built upon two
 
 ## 📂 Repository Structure
 
--   **`/hl2-app-unity`**: The Unity 6 project for HoloLens 2. Contains the MRTK3-based UI, hand-tracking data recording logic, and the WebSocket server implementation.
+-   **`/hl2-unity`**: The Unity 6 project for HoloLens 2. Contains the MRTK3-based UI, hand-tracking data recording logic, and the WebSocket server implementation.
     
--   **`/python-backend`**: The Python 3.11 application handling frame sampling (3 FPS), VLM API requests via GPT-5.2, and automatic video trimming.
-    
--   **`/docs`**: Technical diagrams, setup guides, and high-resolution figures from the research paper.
-    
+-   **`/pc-python`**: The Python 3.11 application handling frame sampling (3 FPS), VLM API requests via GPT-5.2, and automatic video trimming.    
 
 ----------
 
