@@ -47,7 +47,7 @@ The underlying communication between the HoloLens 2 and the PC is built upon thr
 
 3.  Build and deploy the solution to your HoloLens 2 (ARM64,WindowsSDK 10.0.22621.0,Master)
 
-4.  Connect to the ip address displayed by the client. Make sure to enable camera access in app settings.
+4.  Connect to the ip address displayed by the client. Text input is only enabled via bluetooth keyboard. Make sure to enable camera access in app settings.
     
 
 ----------

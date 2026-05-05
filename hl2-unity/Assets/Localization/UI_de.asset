@@ -1,0 +1,739 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: UI_de
+  m_EditorClassIdentifier: 
+  m_LocaleId:
+    m_Code: de
+  m_SharedData: {fileID: 11400000, guid: 6b28b1a83a19d7844bbf0a6b0e614ef6, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 1010213675008
+    m_Localized: Anweisungen erstellen oder nutzen?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2119640637440
+    m_Localized: Erstellen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2281779847168
+    m_Localized: Nutzen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5922242781184
+    m_Localized: "Manuelles oder unterst\xFCtztes Authoring?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6536129503232
+    m_Localized: Neu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6637782654976
+    m_Localized: Vorhanden
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16311881916416
+    m_Localized: 3D
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16529612431360
+    m_Localized: Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16661909168128
+    m_Localized: Video
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44765700513792
+    m_Localized: Start
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44769102094336
+    m_Localized: Stop
+    m_Metadata:
+      m_Items: []
+  - m_Id: 72187535777792
+    m_Localized: "Zur\xFCck"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 94676928258048
+    m_Localized: Text Vorschau
+    m_Metadata:
+      m_Items: []
+  - m_Id: 94923003879424
+    m_Localized: "Noch kein Text vorhanden. \nBitte f\xFCgen Sie eine Beschreibung
+      des Arbeitsschrittes hinzu."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 96465371095040
+    m_Localized: Video Vorschau
+    m_Metadata:
+      m_Items: []
+  - m_Id: 120989248479232
+    m_Localized: Fertig
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1825603623100416
+    m_Localized: "Wollen Sie diesen Schritt abschlie\xDFen?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1826190632722432
+    m_Localized: Ja
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1826317829185536
+    m_Localized: Nein
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1873348882898944
+    m_Localized: '1. Demonstrieren und filmen Sie die Aufgabe
+
+      2. Sagen Sie
+      "Stop", um die Aufnahme zu stoppen
+
+      3. Halten Sie das Video kurz, die
+      Aktion zentriert'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1893465377251328
+    m_Localized: DE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1898234414145536
+    m_Localized: Bild
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1904102652289024
+    m_Localized: Hand
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1920587646935040
+    m_Localized: "Wollen Sie das vorhandene Video wirklich \xFCberschreiben?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2197518871207936
+    m_Localized: 'Workflow Name:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2199884798402560
+    m_Localized: "Best\xE4tigen"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2200138872561664
+    m_Localized: Abbrechen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2288902902947840
+    m_Localized: Das ist eine Beispielanweisung
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6660859089321984
+    m_Localized: Bild Vorschau
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6661028065247232
+    m_Localized: Noch kein Bild vorhanden. Bitte nehmen Sie eine Bildanweisung auf.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6666463199559680
+    m_Localized: Aufnehmen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6948726449569792
+    m_Localized: "Wollen Sie das vorhandene Bild wirklich \xFCberschreiben?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7277809502978048
+    m_Localized: Einstellungen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8743202744418304
+    m_Localized: "N\xE4chster"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8745431165550592
+    m_Localized: "Wollen Sie den gesamten Workflow abschlie\xDFen?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8829503866548224
+    m_Localized: "Verf\xFCgbare Workflows"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8843363172364288
+    m_Localized: Es existieren noch keine Workflows
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19722940561989632
+    m_Localized: "Ausw\xE4hlen"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20090176019603456
+    m_Localized: Weiter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20090359910473728
+    m_Localized: "Zur\xFCck"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20399142213754880
+    m_Localized: "Wollen Sie zum vorherigen Schritt zur\xFCckkehren?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20476171755954176
+    m_Localized: Beenden
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20476511083536384
+    m_Localized: Wollen Sie die Anleitung verlassen?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 26849293411491840
+    m_Localized: Fertig
+    m_Metadata:
+      m_Items: []
+  - m_Id: 26851589314781184
+    m_Localized: Textanweisung
+    m_Metadata:
+      m_Items: []
+  - m_Id: 26861945328181248
+    m_Localized: Sind Sie fertig mit der textuellen Anweisung?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 26862268499304448
+    m_Localized: Sind Sie fertig mit der Videoanweisung?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 26874630325346304
+    m_Localized: Videoanweisung
+    m_Metadata:
+      m_Items: []
+  - m_Id: 26878019012599808
+    m_Localized: "Aufl\xF6sung"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 26917472666066944
+    m_Localized: 3D Anweisungen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27692960426921984
+    m_Localized: "Scannen Sie zun\xE4chst einen QR-Code. Sobald der QR-Code gr\xFCn
+      leuchtet, k\xF6nnen Sie fortfahren."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28787529669869568
+    m_Localized: Pfeile
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28787632438706176
+    m_Localized: Tools
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28787789527973888
+    m_Localized: "H\xE4nde"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28787886676443136
+    m_Localized: Zahlen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28788068906369024
+    m_Localized: Symbole
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28788185130532864
+    m_Localized: Zonen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 33455657302499328
+    m_Localized: Mit dem Erstellen von Anweisungen beginnen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 33455807643131904
+    m_Localized: Start
+    m_Metadata:
+      m_Items: []
+  - m_Id: 34121401926000640
+    m_Localized: "Das System generiert 3D Anweisungen. \xDCberp\xFCfen Sie, ob diese
+      Ihren Erwartungen entsprechen"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 34153148646531072
+    m_Localized: "R\xE4umliche Verankerung"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35626361599078400
+    m_Localized: Ok
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35639148387807232
+    m_Localized: "Text \xC4ndern"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35639368811065344
+    m_Localized: "Video \xC4ndern"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35642651810246656
+    m_Localized: Wollen Sie die Textanweisung bearbeiten?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35643940824723456
+    m_Localized: Wollen Sie die Videoanweisung bearbeiten?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40717653295378432
+    m_Localized: Mit der Anleitung beginnen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 42172840343842816
+    m_Localized: Schritt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47214407222239232
+    m_Localized: Websocket Verbindung
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47891028563853312
+    m_Localized: Eine Verbindung konnte nicht hergestellt werden. Bitte versuche
+      es erneut
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50439708695846912
+    m_Localized: Warten auf Systemempfehlung...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50458345167118336
+    m_Localized: Analyse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50458610423291904
+    m_Localized: Aktion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50458859111964672
+    m_Localized: Frame
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50458982638411776
+    m_Localized: "Erkl\xE4rung"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50460065960026112
+    m_Localized: 3D Authoring
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50461095699406848
+    m_Localized: "Warten Sie auf das Analyseergebnis des Systems.\nDieses wird Ihnen
+      eine passende 3D Anweisung vorschlagen und an einen vorl\xE4ufigen Ort platzieren.
+      Sie k\xF6nnen diese dann bei Bedarf anpassen."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50467550171226112
+    m_Localized: Sind Sie fertig mit den 3D Anweisungen?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54385096301412352
+    m_Localized: 'VLM
+
+      (proz.)'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54385409884356608
+    m_Localized: Manuell
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54456691471003648
+    m_Localized: "W\xE4hlen Sie ein 3D Hologramm aus und platzieren Sie es an der
+      gew\xFCnschten Stelle"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 55224796740349952
+    m_Localized: "Linksh\xE4nder"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 55225000801628160
+    m_Localized: "Rechtsh\xE4nder"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 55229848536248320
+    m_Localized: Finalisieren
+    m_Metadata:
+      m_Items: []
+  - m_Id: 65356420118401024
+    m_Localized: Anordnung
+    m_Metadata:
+      m_Items: []
+  - m_Id: 65373972429197312
+    m_Localized: Rescan QR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 65374291720589312
+    m_Localized: Setup
+    m_Metadata:
+      m_Items: []
+  - m_Id: 65585418984890368
+    m_Localized: "Stellen Sie die HoloLens so ein, dass Sie die vier wei\xDFen Markierungen
+      in den Ecken des Sichtfelds erkennen k\xF6nnen. "
+    m_Metadata:
+      m_Items: []
+  - m_Id: 65593364905074688
+    m_Localized: Ansicht auf PC streamen? (Debug/Studie)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 65609884557254656
+    m_Localized: Weiteres
+    m_Metadata:
+      m_Items: []
+  - m_Id: 65610230469894144
+    m_Localized: Sprache
+    m_Metadata:
+      m_Items: []
+  - m_Id: 65645240300216320
+    m_Localized: Letzte Pos
+    m_Metadata:
+      m_Items: []
+  - m_Id: 66066036042637312
+    m_Localized: "Halten Sie die gew\xFCnschte Szene zentriert. Der Punkt dient als
+      Orientierung."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67435629830676480
+    m_Localized: Die Aufnahme wird verarbeitet...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67507972779220992
+    m_Localized: Anleitung
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67516079332859904
+    m_Localized: "Dr\xFCcken Sie \"Start\" um mit dem Tutorial zu beginnen. Stellen
+      Sie sicher, dass Sie genug Platz vor sich haben."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67526327888191488
+    m_Localized: "Es gibt zwei M\xF6glichkeiten mit den H\xE4nden zu inteagieren:\n\n1.
+      <i>Nahinteraktion</i>\n    Tippe mit dem Zeigefinger die Elemente direkt an.\n\n2.
+      <i>Ferninteraktion</i> \n    Visiere Elemente in der Entfernung mittels Handstrahl\n   
+      an und f\xFChre Daumen und Zeigefinger zusammen (Pinch). \n    Spreize die
+      Finger im Anschluss deutlich wieder.\n \nEine erfolgreiche Aktivierung wird
+      audiovisuell begleitet.\nProbier beides mal aus!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67531560487952384
+    m_Localized: Nah
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67537737745637376
+    m_Localized: Fern
+    m_Metadata:
+      m_Items: []
+  - m_Id: 69706988007124992
+    m_Localized: Handinteraktion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 69707268870303744
+    m_Localized: "Handmen\xFC"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 69707637537042432
+    m_Localized: "Das Handmen\xFC erm\xF6glicht Ihnen einen schnellen Zugriff auf
+      wichtige Funktionen.\n\nAktivieren Sie es, indem Sie Ihre Handfl\xE4che zu
+      sich drehen. \nWenn Sie z.B. rechtsh\xE4ndig sind erscheint das Men\xFC an
+      Ihrer linken Hand."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 69711807816069120
+    m_Localized: Test
+    m_Metadata:
+      m_Items: []
+  - m_Id: 76104934375714816
+    m_Localized: 'Aktion:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 76107032660176896
+    m_Localized: 'Frame(s):'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 77954717990154240
+    m_Localized: "H\xE4nde:"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88508627631550464
+    m_Localized: pink
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88512246749671424
+    m_Localized: "wei\xDF"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88512361967202304
+    m_Localized: grau
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88512490078023680
+    m_Localized: schwarz
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88512623083597824
+    m_Localized: rot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88512705552003072
+    m_Localized: lila
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88512773537476608
+    m_Localized: limett
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88512890747301888
+    m_Localized: "gr\xFCn"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88512960062369792
+    m_Localized: "t\xFCrkis"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88513113783611392
+    m_Localized: blau
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88513194196807680
+    m_Localized: gelb
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88513278674284544
+    m_Localized: orange
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90642761954963456
+    m_Localized: Neues Video
+    m_Metadata:
+      m_Items: []
+  - m_Id: 93517764752515072
+    m_Localized: "Ist die gew\xFCnschte Aktion klar erkennbar?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 93532143241756672
+    m_Localized: Checkliste
+    m_Metadata:
+      m_Items: []
+  - m_Id: 93532335282159616
+    m_Localized: '1. Ist die Aktion gut zu erkennen?
+
+      2. Aufnahme beginnt vor
+      und endet nach Aktion?
+
+      3. Nur die relevante Hand ist zu sehen?'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 98342393920823296
+    m_Localized: zu 3D
+    m_Metadata:
+      m_Items: []
+  - m_Id: 98353878319439872
+    m_Localized: 'VLM
+
+      (n. proz.)'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 98360821272485888
+    m_Localized: Sind Sie mit dem Erstellen von Text und Video fertig?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 99014121726615552
+    m_Localized: Vorheriger
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100125874900377600
+    m_Localized: VLM-basiert
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100504612100452352
+    m_Localized: Sind Sie zufrieden mit der in-situ Anweisung?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 108808233086734336
+    m_Localized: System generiert 3D Anweisungen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 108809102041665536
+    m_Localized: Los geht's
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115244573885931520
+    m_Localized: "Basierend auf Ihren aufgenommenen Videos, erstellt das System automatisch
+      passende 3D Anweisungen und platziert diese im Raum. Sie haben nun die M\xF6glichkeit
+      diese zu \xFCberpr\xFCfen und bei Bedarf anzupassen.\n\nSobald alle 3D Anweisungen
+      generiert wurden, ert\xF6nt ein akustisches Signal und der Knopf zum fortfahren
+      wird freigeschaltet."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115716552011227136
+    m_Localized: Sind Sie mit diesem Schritt fertig?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115716746605961216
+    m_Localized: Sind Sie fertig mit ALLEN Schritten?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 116071376993067008
+    m_Localized: Anweisungen erstellen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 116071600553664512
+    m_Localized: "Sie k\xF6nnen nun mit dem Erstellen von Anweisungen beginnen. \n\xDCber
+      das Men\xFC vor Ihnen haben Sie die Wahl folgende Anweisungstypen zu erstellen:\n\n1.
+      Textanweisung\n2. Videoanweisung\n3. 3D-Anweisung\n\nErstellte Anweisungen
+      werden Ihnen angezeigt."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117894296413523968
+    m_Localized: Noch keine Textanweisung vorhanden
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118261088674607104
+    m_Localized: braun
+    m_Metadata:
+      m_Items: []
+  - m_Id: 169725362853584896
+    m_Localized: "L\xF6schen?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 169962920091000832
+    m_Localized: Editieren
+    m_Metadata:
+      m_Items: []
+  - m_Id: 169963253169070080
+    m_Localized: "L\xF6schen"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 169963888874561536
+    m_Localized: "Hinzuf\xFCgen"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 171515690443198464
+    m_Localized: 'Editiere den Text:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 171799768589344768
+    m_Localized: Regenerieren
+    m_Metadata:
+      m_Items: []
+  - m_Id: 171800359818436608
+    m_Localized: 'Erneut
+
+      Aufnehmen'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 172624136253067264
+    m_Localized: "L\xF6schen oder Manipulieren?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 172627224397467648
+    m_Localized: Manipulieren
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176235754621726720
+    m_Localized: Wollen Sie den Schritt erneut demonstrieren?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176240718102360064
+    m_Localized: Redo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176248675837898752
+    m_Localized: Sind Sie zufrieden mit dem Video?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176640528831705088
+    m_Localized: '1. Erstellen Sie Text-, Video- und 3D-Anweisungen
+
+      2. Platzieren
+      Sie auch dieses Panel an Ort und Stelle. '
+    m_Metadata:
+      m_Items: []
+  - m_Id: 177737937348403200
+    m_Localized: '1. Passen Sie die Textanweisung ggf. an
+
+      2. Passen Sie die
+      Position der 3D Objekte ggf. an
+
+      3. Passen Sie die Position des Panels
+      ggf. an
+
+      4. Demonstrieren Sie die Aktion bei Bedarf erneut'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178682666605027328
+    m_Localized: "Start-Schritt ausw\xE4hlen"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178720571360747520
+    m_Localized: Klick mich
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178730795236794368
+    m_Localized: Fenster anordnen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178730949595570176
+    m_Localized: "Fenster k\xF6nnen bei Bedarf neuangeordnet werden.\n\n1. <i>Fest
+      verankerte Fenster</i>\n    Manche Fenster sind an Ort und Stelle verankert.
+      Um\n    diese neuanzuordnen, greife den oberen Rand mit\n    Daumen und Zeigefinger
+      (Pinch) und verschiebe es.\n\n2. <i>Folgende Fenster</i>\n    Manche Fenster
+      folgen dir in gewissem Abstand. Auch\n    diese kannst du im Rahmen des erlaubten
+      Spielraums\n    greifen und verschieben.\n\nDas Greifen mit 2 H\xE4nden erlaubt
+      Gr\xF6\xDFenver\xE4nderung.\nProbier beide Modi mal aus!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178741317709537280
+    m_Localized: Text und Video
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178741484609282048
+    m_Localized: "Im Laufe des Versuchs wirst du Text schreiben und Videos aufnehmen.\n\n1.
+      <i>Text</i>\n    Nutze die physische Tastatur, um Text zu schreiben.\n\n2.
+      <i>Video</i>\n    Um ein Video aufzunehmen, dr\xFCcke den\n    Aufnahmeknopf.
+      Sag \"Stop\", um die Aufnahme zu\n    beenden. Die wei\xDFen Marker dienen
+      als Orientierung.\n\nProbier beides mal aus!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178751528314982400
+    m_Localized: Schreib etwas...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178759036471463936
+    m_Localized: 3D Objekte Manipulieren
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178759472028962816
+    m_Localized: "3D Objekte k\xF6nnen in ihrer Position und Gr\xF6\xDFe ver\xE4ndert
+      werden.\n\n1. <i>Position</i>\n    Greife das Objekt mit einer Hand (Pinch)
+      und bewege\n    es. Lass los indem du Daumen und Zeigefinger spreizt.\n\n2.
+      <i>Gr\xF6\xDFe</i>\n    Greife das Objekt mit 2 H\xE4nden und bewege diese\n   
+      aufeinander zu oder voneinander weg.\n\nVer\xE4nder das Beispielobject in seiner
+      Position & Gr\xF6\xDFe!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178765449625194496
+    m_Localized: Home
+    m_Metadata:
+      m_Items: []
+  - m_Id: 194382115692236800
+    m_Localized: User Study?
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

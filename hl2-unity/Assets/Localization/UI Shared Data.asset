@@ -1,0 +1,684 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: UI Shared Data
+  m_EditorClassIdentifier: 
+  m_TableCollectionName: UI
+  m_TableCollectionNameGuidString: 6b28b1a83a19d7844bbf0a6b0e614ef6
+  m_Entries:
+  - m_Id: 1010213675008
+    m_Key: ModeDialogHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2119640637440
+    m_Key: ModeAuthoring
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2281779847168
+    m_Key: ModeGuidance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5922242781184
+    m_Key: WorkflowDialogHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6536129503232
+    m_Key: NewOption
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6637782654976
+    m_Key: ExistingOption
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16311881916416
+    m_Key: 3DLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16529612431360
+    m_Key: TextLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16661909168128
+    m_Key: VideoLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44765700513792
+    m_Key: StartRecordLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44769102094336
+    m_Key: StopRecordLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 72187535777792
+    m_Key: ReturnButton
+    m_Metadata:
+      m_Items: []
+  - m_Id: 94676928258048
+    m_Key: TextPreviewHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 94923003879424
+    m_Key: TextPreviewMain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 96465371095040
+    m_Key: VideoPreviewHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 120989248479232
+    m_Key: Finish
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1825603623100416
+    m_Key: ConfirmStepHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1826190632722432
+    m_Key: Yes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1826317829185536
+    m_Key: No
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1873348882898944
+    m_Key: VideoPreviewMain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1893465377251328
+    m_Key: Language
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1898234414145536
+    m_Key: ImgLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1904102652289024
+    m_Key: HandLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1920587646935040
+    m_Key: ConfirmNewVidHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2197518871207936
+    m_Key: WorkflowNamingHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2199884798402560
+    m_Key: ConfirmLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2200138872561664
+    m_Key: CancelLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2288902902947840
+    m_Key: TextPlaceholder
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6660859089321984
+    m_Key: ImagePreviewHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6661028065247232
+    m_Key: ImagePreviewMain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6666463199559680
+    m_Key: Capture
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6948726449569792
+    m_Key: ConfirmNewImgHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7277809502978048
+    m_Key: Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8743202744418304
+    m_Key: Next
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8745431165550592
+    m_Key: ConfirmAuthoringHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8829503866548224
+    m_Key: WorkflowListHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8843363172364288
+    m_Key: NoWorkflowsHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19722940561989632
+    m_Key: SelectLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20090176019603456
+    m_Key: ContinueLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20090359910473728
+    m_Key: PreviousLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20399142213754880
+    m_Key: ConfirmPrevStepHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20476171755954176
+    m_Key: QuitLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20476511083536384
+    m_Key: ConfirmQuitDialogHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 26849293411491840
+    m_Key: DoneLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 26851589314781184
+    m_Key: TextInstructionHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 26861945328181248
+    m_Key: ConfirmAuthTextHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 26862268499304448
+    m_Key: ConfirmAuthVideoHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 26874630325346304
+    m_Key: VideoInstructionHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 26878019012599808
+    m_Key: ResolutionLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 26917472666066944
+    m_Key: 3D Instruction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27692960426921984
+    m_Key: ScanQR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28787529669869568
+    m_Key: ArrowsLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28787632438706176
+    m_Key: ToolsLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28787789527973888
+    m_Key: HandsLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28787886676443136
+    m_Key: NumbersLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28788068906369024
+    m_Key: SymbolsLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28788185130532864
+    m_Key: ZonesLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 33455657302499328
+    m_Key: StartAuthorHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 33455807643131904
+    m_Key: StartLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 34121401926000640
+    m_Key: Author3D
+    m_Metadata:
+      m_Items: []
+  - m_Id: 34153148646531072
+    m_Key: QRHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35626361599078400
+    m_Key: OkLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35639148387807232
+    m_Key: EditTextLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35639368811065344
+    m_Key: EditVideoLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35642651810246656
+    m_Key: ConfirmEditTextHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35643940824723456
+    m_Key: ConfirmEditVideoHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40717653295378432
+    m_Key: StartGuideHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 42172840343842816
+    m_Key: StepLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47214407222239232
+    m_Key: WebsocketHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47891028563853312
+    m_Key: ConnectFail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50439708695846912
+    m_Key: AwaitingVLM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50458345167118336
+    m_Key: VLMHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50458610423291904
+    m_Key: ActionLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50458859111964672
+    m_Key: ActionFrameLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50458982638411776
+    m_Key: ExplanationLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50460065960026112
+    m_Key: Auth3D
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50461095699406848
+    m_Key: Auth3DText
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50467550171226112
+    m_Key: ConfirmAuth3dHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54385096301412352
+    m_Key: AssistedProc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54385409884356608
+    m_Key: ManualOption
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54456398595338240
+    m_Key: New Entry
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54456691471003648
+    m_Key: Auth3DInstruction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 55224796740349952
+    m_Key: Left
+    m_Metadata:
+      m_Items: []
+  - m_Id: 55225000801628160
+    m_Key: Right
+    m_Metadata:
+      m_Items: []
+  - m_Id: 55229848536248320
+    m_Key: Finalize
+    m_Metadata:
+      m_Items: []
+  - m_Id: 65356420118401024
+    m_Key: authPanelOrganization
+    m_Metadata:
+      m_Items: []
+  - m_Id: 65373972429197312
+    m_Key: retrackQR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 65374291720589312
+    m_Key: Setup
+    m_Metadata:
+      m_Items: []
+  - m_Id: 65585418984890368
+    m_Key: checkFov
+    m_Metadata:
+      m_Items: []
+  - m_Id: 65593364905074688
+    m_Key: StreamHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 65609884557254656
+    m_Key: other
+    m_Metadata:
+      m_Items: []
+  - m_Id: 65610230469894144
+    m_Key: languageLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 65645240300216320
+    m_Key: LastPose
+    m_Metadata:
+      m_Items: []
+  - m_Id: 66066036042637312
+    m_Key: CaptureInstruction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67435629830676480
+    m_Key: ProcessingVideo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67507972779220992
+    m_Key: Tutorial
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67516079332859904
+    m_Key: TutorialHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67526327888191488
+    m_Key: InteractionTutorial
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67531560487952384
+    m_Key: Near
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67537737745637376
+    m_Key: Far
+    m_Metadata:
+      m_Items: []
+  - m_Id: 69706988007124992
+    m_Key: HandinteractionExplain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 69707268870303744
+    m_Key: HandmenuExplain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 69707637537042432
+    m_Key: HandmenuTutorial
+    m_Metadata:
+      m_Items: []
+  - m_Id: 69711807816069120
+    m_Key: Test
+    m_Metadata:
+      m_Items: []
+  - m_Id: 76104934375714816
+    m_Key: ActionResultLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 76107032660176896
+    m_Key: FrameResultLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 77954717990154240
+    m_Key: HandsResultLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88508627631550464
+    m_Key: pink
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88512246749671424
+    m_Key: white
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88512361967202304
+    m_Key: gray
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88512490078023680
+    m_Key: black
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88512623083597824
+    m_Key: red
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88512705552003072
+    m_Key: violet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88512773537476608
+    m_Key: lime
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88512890747301888
+    m_Key: green
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88512960062369792
+    m_Key: cyan
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88513113783611392
+    m_Key: blue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88513194196807680
+    m_Key: yellow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88513278674284544
+    m_Key: orange
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90642761954963456
+    m_Key: NewCapture
+    m_Metadata:
+      m_Items: []
+  - m_Id: 93517764752515072
+    m_Key: CheckVidText
+    m_Metadata:
+      m_Items: []
+  - m_Id: 93532143241756672
+    m_Key: VideoChecklistHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 93532335282159616
+    m_Key: VideoChecklistMain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 98342393920823296
+    m_Key: to3d
+    m_Metadata:
+      m_Items: []
+  - m_Id: 98353878319439872
+    m_Key: AssistedNonProc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 98360821272485888
+    m_Key: ConfirmTextVideo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 99014121726615552
+    m_Key: PrevLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100125874900377600
+    m_Key: VLM-based
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100504612100452352
+    m_Key: Confirm3dHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 108808233086734336
+    m_Key: StartControlLoopHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 108809102041665536
+    m_Key: LetsGo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115244573885931520
+    m_Key: ControlLoopDialog
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115716552011227136
+    m_Key: ConfirmNextStepAssisted
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115716746605961216
+    m_Key: ConfirmLastStepAssisted
+    m_Metadata:
+      m_Items: []
+  - m_Id: 116071376993067008
+    m_Key: ManAuthExplanationHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 116071600553664512
+    m_Key: ManAuthExplanation
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117894296413523968
+    m_Key: NoText
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118261088674607104
+    m_Key: brown
+    m_Metadata:
+      m_Items: []
+  - m_Id: 169725362853584896
+    m_Key: Delete?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 169962920091000832
+    m_Key: Edit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 169963253169070080
+    m_Key: Delete
+    m_Metadata:
+      m_Items: []
+  - m_Id: 169963888874561536
+    m_Key: Add
+    m_Metadata:
+      m_Items: []
+  - m_Id: 171515690443198464
+    m_Key: EditTextHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 171799768589344768
+    m_Key: Resend
+    m_Metadata:
+      m_Items: []
+  - m_Id: 171800359818436608
+    m_Key: Recapture
+    m_Metadata:
+      m_Items: []
+  - m_Id: 172624136253067264
+    m_Key: DeleteOrManipulate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 172627224397467648
+    m_Key: Manipulate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 172627370283749376
+    m_Key: New Entry 1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176235754621726720
+    m_Key: ConfirmRedoHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176240718102360064
+    m_Key: Redo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176248675837898752
+    m_Key: ConfirmRedoneHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176640528831705088
+    m_Key: ManualAuthPreviewText
+    m_Metadata:
+      m_Items: []
+  - m_Id: 177737937348403200
+    m_Key: AssistedAuthPreviewText
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178682666605027328
+    m_Key: SelectStepHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178720571360747520
+    m_Key: ClickMe
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178730795236794368
+    m_Key: PanelManipulationHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178730949595570176
+    m_Key: OrganizeWindowTutorial
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178741317709537280
+    m_Key: AuthorTutHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178741484609282048
+    m_Key: TextVideoTutorial
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178751528314982400
+    m_Key: TextPlaceholderTut
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178759036471463936
+    m_Key: Manipulate3dHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178759472028962816
+    m_Key: Manipulate3dTutorial
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178765449625194496
+    m_Key: Home
+    m_Metadata:
+      m_Items: []
+  - m_Id: 194382115692236800
+    m_Key: StudyHeader
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 3248241594816004395
+  references:
+    version: 2
+    RefIds:
+    - rid: 3248241594816004395
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1729839299965
