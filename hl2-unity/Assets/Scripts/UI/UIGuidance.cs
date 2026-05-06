@@ -56,6 +56,9 @@ public class UIGuidance : MonoBehaviour
     [Tooltip("Input field for websocket ip")]
     public MRTKTMPInputField websocketIpInput;
 
+    [Tooltip("Directional indicator used to visually guide user towards currently most relevant UI element. Is automatically disabled after specified time")]
+    public CustomDirectionalIndicator visualCue;
+
     #endregion
 
 
@@ -140,6 +143,10 @@ public class UIGuidance : MonoBehaviour
 
         // Adjust navigation buttons
         GuidanceManager.instance.ConfigureNavButtons();
+
+        // Enable directional indicator to visually guide user towards instruction
+        visualCue.gameObject.SetActive(true);
+        visualCue.DirectionalTarget = instructionView.transform;
     }
 
     // User wants to proceed to next step
@@ -151,6 +158,10 @@ public class UIGuidance : MonoBehaviour
 
         // Adjust navigation buttons
         GuidanceManager.instance.ConfigureNavButtons();
+
+        // Enable directional indicator to visually guide user towards next instruction
+        visualCue.gameObject.SetActive(true);
+        visualCue.DirectionalTarget = instructionView.transform;
     }
 
     // User wants to return to previous step
@@ -162,6 +173,10 @@ public class UIGuidance : MonoBehaviour
 
         // Adjust navigation buttons
         GuidanceManager.instance.ConfigureNavButtons();
+
+        // Enable directional indicator to visually guide user towards previous instruction
+        visualCue.gameObject.SetActive(true);
+        visualCue.DirectionalTarget = instructionView.transform;
     }
 
     // User wants to quit guide

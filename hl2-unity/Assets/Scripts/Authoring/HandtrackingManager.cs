@@ -1039,9 +1039,10 @@ public class HandtrackingManager : MonoBehaviour
                             break;
                         default:
                             // For all other bones, do a simple "IK" from the rigged joint to the joint data's position.
-                            leftJointTransform.rotation = Quaternion.LookRotation(sLeftJointPose.position - leftJointTransform.position, new Pose(frame.jointPosesLeft[i - 1].position, frame.jointPosesLeft[i - 1].rotation).up);
-                            rightJointTransform.rotation = Quaternion.LookRotation(sRightJointPose.position - rightJointTransform.position, new Pose(frame.jointPosesRight[i - 1].position, frame.jointPosesRight[i - 1].rotation).up);
-
+                            //leftJointTransform.rotation = Quaternion.LookRotation(sLeftJointPose.position - leftJointTransform.position, new Pose(frame.jointPosesLeft[i - 1].position, frame.jointPosesLeft[i - 1].rotation).up);
+                            leftJointTransform.rotation = Quaternion.LookRotation(sLeftJointPose.position - frame.jointPosesLeft[i - 1].position, new Pose(frame.jointPosesLeft[i - 1].position, frame.jointPosesLeft[i - 1].rotation).up);
+                            //rightJointTransform.rotation = Quaternion.LookRotation(sRightJointPose.position - rightJointTransform.position, new Pose(frame.jointPosesRight[i - 1].position, frame.jointPosesRight[i - 1].rotation).up);
+                            rightJointTransform.rotation = Quaternion.LookRotation(sRightJointPose.position - frame.jointPosesRight[i - 1].position, new Pose(frame.jointPosesRight[i - 1].position, frame.jointPosesRight[i - 1].rotation).up);
                             break;
                     }
                 }

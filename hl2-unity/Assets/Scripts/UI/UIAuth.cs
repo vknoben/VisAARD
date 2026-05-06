@@ -729,7 +729,7 @@ public class UIAuth : MonoBehaviour
     {
 #if ENABLE_WINMD_SUPPORT
         // Save instruction panel pose to disk
-        SerializableInstructionPanelPose serializableInstructionPanelPose = new SerializableInstructionPanelPose(aStepPreview.transform);
+        SerializableInstructionPanelPose serializableInstructionPanelPose = new SerializableInstructionPanelPose(mStepPreview.transform);
 
         // Create json from serializable instruction panel pose
         string json = JsonUtility.ToJson(serializableInstructionPanelPose, true);

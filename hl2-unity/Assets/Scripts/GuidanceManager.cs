@@ -70,6 +70,12 @@ public class GuidanceManager : MonoBehaviour
     [Tooltip("Coroutine for hand animation playback")]
     public Coroutine handAnimRoutine;
 
+    [Tooltip("Offsets applied to animated hands to match user authoring")]
+    private Vector3 animOffsetPosL = Vector3.zero;
+    private Quaternion animOffsetRotL = Quaternion.identity;
+    private Vector3 animOffsetPosR = Vector3.zero;
+    private Quaternion animOffsetRotR = Quaternion.identity;
+
     // 3D instructions
     [Tooltip("List of 3D instructions loaded from file")]
     private SerializableInsituInstructionSet iSet;
@@ -281,7 +287,7 @@ public class GuidanceManager : MonoBehaviour
                                 continue;
                             }
 
-                            // Vermeide doppelte Workflows (falls gleiche Namen in beiden Ordnern existieren)
+                            // Avoid duplicate workflows present in both StreamingAssets and persistent data
                             if (workflowNames.Contains(dirInfo.Name))
                             {
                                 continue;
@@ -1385,6 +1391,21 @@ public class GuidanceManager : MonoBehaviour
                 FrameData frame = handtrackingData.frames[frameIterator];
 
                 // Set hands based on frame data
+                Transform refBase = QRGuidance.instance.qrTransform;
+
+                // Target and offset values for wrist transformation (left and right)
+                Vector3 finalWristPosL = animOffsetPosL + (animOffsetRotL * frame.leftWrist.position);
+                Quaternion finalWristRotL = animOffsetRotL * frame.leftWrist.rotation;
+                Vector3 finalWristPosR = animOffsetPosR + (animOffsetRotR * frame.rightWrist.position);
+                Quaternion finalWristRotR = animOffsetRotR * frame.rightWrist.rotation;
+
+                // Generate delta rotation to correct offset (left and right)
+                Quaternion deltaRotL = Quaternion.identity;
+                if (frame.isValidLeft) deltaRotL = (refBase.rotation * finalWristRotL) * Quaternion.Inverse(frame.jointPosesLeft[1].rotation);
+                Quaternion deltaRotR = Quaternion.identity;
+                if (frame.isValidRight) deltaRotR = (refBase.rotation * finalWristRotR) * Quaternion.Inverse(frame.jointPosesRight[1].rotation);
+
+                // Iterate through joints
                 for (int i = 0; i < 26; i++)
                 {
                     // Pose data
@@ -1398,68 +1419,37 @@ public class GuidanceManager : MonoBehaviour
                     switch ((TrackedHandJoint)i)
                     {
                         case TrackedHandJoint.Palm:
-                            // Don't track the palm. The hand mesh shouldn't have a "palm bone".
-                            break;
                         case TrackedHandJoint.Wrist:
-                            // Set wrist pose
-                            leftJointTransform.SetPositionAndRotation(sLeftJointPose.position, sLeftJointPose.rotation);
-                            rightJointTransform.SetPositionAndRotation(sRightJointPose.position, sRightJointPose.rotation);
-
-
-                            // Interpolate between previous and current wrist positions and rotations
-                            //Vector3 interpolatedPosLeft = Vector3.Lerp(prevFrame.leftWrist.position, frame.leftWrist.position, t);
-                            //Quaternion interpolatedRotLeft = Quaternion.Slerp(prevFrame.leftWrist.rotation, frame.leftWrist.rotation, t);
-                            //Vector3 interpolatedPosRight = Vector3.Lerp(prevFrame.rightWrist.position, frame.rightWrist.position, t);
-                            //Quaternion interpolatedRotRight = Quaternion.Slerp(prevFrame.rightWrist.rotation, frame.rightWrist.rotation, t);
-
-                            //// Move wrist to next pose
-                            //leftJointTransform.SetLocalPositionAndRotation(interpolatedPosLeft, interpolatedRotLeft);
-                            //rightJointTransform.transform.SetLocalPositionAndRotation(interpolatedPosRight, interpolatedRotRight);
-
+                            // Wrist will be repositioned later via SetLocalPositionAndRotation
                             break;
                         case TrackedHandJoint.ThumbTip:
                         case TrackedHandJoint.IndexTip:
                         case TrackedHandJoint.MiddleTip:
                         case TrackedHandJoint.RingTip:
                         case TrackedHandJoint.LittleTip:
-                            // The tip bone uses the joint rotation directly.
-                            leftJointTransform.rotation = frame.jointPosesLeft[i - 1].rotation;
-                            leftJointTransform.rotation = frame.jointPosesLeft[i - 1].rotation;
-                            rightJointTransform.rotation = frame.jointPosesRight[i - 1].rotation;
-                            rightJointTransform.rotation = frame.jointPosesRight[i - 1].rotation;
-
+                            leftJointTransform.rotation = deltaRotL * frame.jointPosesLeft[i - 1].rotation;
+                            rightJointTransform.rotation = deltaRotR * frame.jointPosesRight[i - 1].rotation;
                             break;
                         case TrackedHandJoint.ThumbMetacarpal:
                         case TrackedHandJoint.IndexMetacarpal:
                         case TrackedHandJoint.MiddleMetacarpal:
                         case TrackedHandJoint.RingMetacarpal:
                         case TrackedHandJoint.LittleMetacarpal:
-                            // Special case metacarpals, because Wrist is not always i-1.
-                            // This is the same "simple IK" as the default case, but with special index logic.
-                            leftJointTransform.rotation = Quaternion.LookRotation(sLeftJointPose.position - frame.jointPosesLeft[(int)MixedReality.Toolkit.TrackedHandJoint.Wrist].position, new Pose(sLeftJointPose.position, sLeftJointPose.rotation).up);
-                            rightJointTransform.rotation = Quaternion.LookRotation(sRightJointPose.position - frame.jointPosesRight[(int)MixedReality.Toolkit.TrackedHandJoint.Wrist].position, new Pose(sRightJointPose.position, sRightJointPose.rotation).up);
-
+                            leftJointTransform.rotation = deltaRotL * Quaternion.LookRotation(sLeftJointPose.position - frame.jointPosesLeft[1].position, new Pose(sLeftJointPose.position, sLeftJointPose.rotation).up);
+                            rightJointTransform.rotation = deltaRotR * Quaternion.LookRotation(sRightJointPose.position - frame.jointPosesRight[1].position, new Pose(sRightJointPose.position, sRightJointPose.rotation).up);
                             break;
                         default:
-                            // For all other bones, do a simple "IK" from the rigged joint to the joint data's position.
-                            leftJointTransform.rotation = Quaternion.LookRotation(sLeftJointPose.position - leftJointTransform.position, new Pose(frame.jointPosesLeft[i - 1].position, frame.jointPosesLeft[i - 1].rotation).up);
-                            rightJointTransform.rotation = Quaternion.LookRotation(sRightJointPose.position - rightJointTransform.position, new Pose(frame.jointPosesRight[i - 1].position, frame.jointPosesRight[i - 1].rotation).up);
-
+                            leftJointTransform.rotation = deltaRotL * Quaternion.LookRotation(sLeftJointPose.position - frame.jointPosesLeft[i - 1].position, new Pose(frame.jointPosesLeft[i - 1].position, frame.jointPosesLeft[i - 1].rotation).up);
+                            rightJointTransform.rotation = deltaRotR * Quaternion.LookRotation(sRightJointPose.position - frame.jointPosesRight[i - 1].position, new Pose(frame.jointPosesRight[i - 1].position, frame.jointPosesRight[i - 1].rotation).up);
                             break;
                     }
                 }
 
-                //// Interpolate between previous and current wrist positions and rotations
-                //Vector3 interpolatedPosLeft = Vector3.Lerp(prevFrame.leftWrist.position, frame.leftWrist.position, t);
-                //Quaternion interpolatedRotLeft = Quaternion.Slerp(prevFrame.leftWrist.rotation, frame.leftWrist.rotation, t);
-                //Vector3 interpolatedPosRight = Vector3.Lerp(prevFrame.rightWrist.position, frame.rightWrist.position, t);
-                //Quaternion interpolatedRotRight = Quaternion.Slerp(prevFrame.rightWrist.rotation, frame.rightWrist.rotation, t);
+                // Transform wrist relative bounds directly (offset applied!)
+                leftRiggedVisualJointsArray[1].transform.SetLocalPositionAndRotation(finalWristPosL, finalWristRotL);
+                rightRiggedVisualJointsArray[1].transform.SetLocalPositionAndRotation(finalWristPosR, finalWristRotR);
 
-                //// Move wrist to next pose
-                ////leftRiggedVisualJointsArray[1].transform.SetLocalPositionAndRotation(frame.leftWrist.position, frame.leftWrist.rotation);
-                ////rightRiggedVisualJointsArray[1].transform.SetLocalPositionAndRotation(frame.rightWrist.position, frame.rightWrist.rotation);
-                //leftRiggedVisualJointsArray[1].transform.SetLocalPositionAndRotation(interpolatedPosLeft, interpolatedRotLeft);
-                //rightRiggedVisualJointsArray[1].transform.SetLocalPositionAndRotation(interpolatedPosRight, interpolatedRotRight);
+                //Log.Msg($"Set joints poses for frame {frameIterator}");
             }
         }
         else
@@ -1478,6 +1468,40 @@ public class GuidanceManager : MonoBehaviour
         {
             //Log.Msg("Handtracking dataset is NULL! Aborting animation");
             yield break;
+        }
+
+        // Calculate animation offset once
+        animOffsetPosL = Vector3.zero; animOffsetRotL = Quaternion.identity;
+        animOffsetPosR = Vector3.zero; animOffsetRotR = Quaternion.identity;
+
+        if (iSet != null && handtrackingData.frames.Count > 0)
+        {
+            // Take first frame for offset calculation
+            FrameData keyFrame = handtrackingData.frames[0];
+            float minDelta = float.MaxValue;
+            foreach (var f in handtrackingData.frames)
+            {
+                float d = Mathf.Abs(f.timestamp - iSet.keyTime);
+                if (d < minDelta) { minDelta = d; keyFrame = f; }
+            }
+
+            // Left hand offset
+            if (iSet.leftUsed && iSet.objPositions.Count > 0)
+            {
+                animOffsetRotL = iSet.objRotations[0] * Quaternion.Inverse(keyFrame.leftWrist.rotation);
+                animOffsetPosL = iSet.objPositions[0] - (animOffsetRotL * keyFrame.leftWrist.position);
+            }
+
+            // Right hand offset
+            if (iSet.rightUsed)
+            {
+                int rIdx = iSet.leftUsed ? 1 : 0;
+                if (iSet.objPositions.Count > rIdx)
+                {
+                    animOffsetRotR = iSet.objRotations[rIdx] * Quaternion.Inverse(keyFrame.rightWrist.rotation);
+                    animOffsetPosR = iSet.objPositions[rIdx] - (animOffsetRotR * keyFrame.rightWrist.position);
+                }
+            }
         }
 
         while (true)
