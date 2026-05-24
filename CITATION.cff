@@ -1,7 +1,7 @@
 cff-version: 1.2.0
-message: "If you use this work, please cite it in the following format"
-type: article
-title: "Comparing AI-Assisted Authoring by Demonstration to Manual Authoring of Augmented Reality Maintenance Instructions"
+message: "If you use this software, please cite it as below."
+type: software
+title: "VisAARD: Vision Language-supported Authoring of Augmented Reality via Demonstrations"
 authors:
   - family-names: "Knoben"
     given-names: "Valentin"
@@ -11,14 +11,6 @@ authors:
     given-names: "Björn"
   - family-names: "Wurll"
     given-names: "Christian"
-collection-title: "Proceedings of Mensch und Computer"
-conference:
-  name: "Mensch und Computer (MuC)"
-  location: "Duisburg, Germany"
-  date-start: "2026-08-30"
-  date-end: "2026-09-02"
-year: 2026
-doi: "10.XXXX/XXXXXX"
-url: "https://doi.org/10.XXXX/XXXXXX"
 repository-code: "https://github.com/vknoben/VisAARD"
+year: 2026
 license: MIT
