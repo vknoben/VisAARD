@@ -1,8 +1,7 @@
 
 # VisAARD: Vision Language-supported Authoring of Augmented Reality via Demonstrations
 
-**VisAARD** is an open-source, human-in-the-loop authoring tool designed to simplify the creation of AR procedural instructions. By combining egocentric video capture, hand-tracking, and Vision-Language Model (VLM) capabilities, it transforms physical demonstrations into digital, AR-based guidance consisting of textual, video, and 3D instrucional elements. VisAARD is published as part of the paper "Comparing AI-Assisted Authoring by Demonstration to Manual
-Authoring of Augmented Reality Maintenance Instructions". This repository contains the technical prototype. For background information and details regarding the conducted user study involving this prototype, refer to the actual publication ([Knoben et al., 2026 (doi pending)](https://doi.org/10.XXXX/XXXXXX)).
+**VisAARD** is an open-source, human-in-the-loop authoring tool designed to simplify the creation of AR procedural instructions. By combining egocentric video capture, hand-tracking, and Vision-Language Model (VLM) capabilities, it transforms physical demonstrations into digital, AR-based guidance consisting of textual, video, and 3D instrucional elements. VisAARD is published as part of the paper "Comparing AI-Assisted Authoring by Demonstration to Manual Authoring of Augmented Reality Maintenance Instructions". This repository contains the technical prototype. For background information and details regarding the conducted user study involving this prototype, refer to the actual publication ([Knoben et al., 2026](https://dl.acm.org/doi/10.1145/3820253.3820275)).
 
 ![VisAARD Teaser](images/VisAARD_teaser.jpg)
 
@@ -58,18 +57,21 @@ The underlying communication between the HoloLens 2 and the PC is built upon thr
 If you use this work or the VisAARD tool in your research, please cite our paper:
 
 ```
-@inproceedings{knoben_comparing_2026,
-	address = {New York, NY, USA},
-	series = {{MuC} '26},
-	title = {Comparing {AI}-{Assisted} {Authoring} by {Demonstration} to {Manual} {Authoring} of {Augmented} {Reality} {Maintenance} {Instructions}},
-	isbn = {979-8-4007-2611-8},
-	url = {https://doi.org/10.1145/3820253.3820275},
-	doi = {10.1145/3820253.3820275},
-	booktitle = {Proceedings of {Mensch} und {Computer} 2026},
-	publisher = {Association for Computing Machinery},
-	author = {Knoben, Valentin Tang and Blattgerste, Jonas and Hein, Björn and Wurll, Christian},
-	month = aug,
-	year = {2026},
-	pages = {396--409},
+@inproceedings{Knoben2026Comparing,
+author = {Knoben, Valentin Tang and Blattgerste, Jonas and Hein, Bj{\"o}rn and Wurll, Christian},
+title = {Comparing AI-Assisted Authoring by Demonstration to Manual Authoring of Augmented Reality Maintenance Instructions},
+year = {2026},
+isbn = {9798400726118},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3820253.3820275},
+doi = {10.1145/3820253.3820275},
+abstract = {Creating Augmented Reality (AR) instructions for industrial guidance remains labor-intensive, while fully automated solutions are often impractical. To bridge this gap, we present VisAARD, an open-source, human-in-the-loop authoring tool that combines vision-language models with authoring by demonstration. From stepwise expert demonstrations, VisAARD uses egocentric video and hand-tracking to generate textual descriptions and propose in-situ 3D guidance elements for later review and refinement. In a within-subject study (N=21), we compared VisAARD against an industry-standard manual authoring baseline similar to Microsoft Dynamics 365 Guides in a robotic-cell maintenance scenario. Compared to the baseline, VisAARD reduced mean authoring time from 36 to under 20 minutes, lowered perceived task load, achieved higher perceived usability, and was preferred by 20 out of 21 participants. Qualitative feedback further suggests that a hybrid workflow combining the efficiency of AI-assisted authoring with targeted manual refinement is perceived as a meaningful direction for AR authoring tools.},
+booktitle = {Proceedings of Mensch Und Computer 2026},
+pages = {396–409},
+numpages = {14},
+keywords = {Augmented Reality, Authoring Tools, Authoring by Demonstration, Vision-Language Models, Human-in-the-Loop AI, Industrial Guidance, Maintenance Instructions},
+location = {Duisburg},
+series = {MuC '26}
 }
 ```
