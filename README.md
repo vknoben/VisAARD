@@ -13,7 +13,7 @@ VisAARD utilizes a split-system design.
 | Component | Role | Technology |
 | :--- | :--- | :--- |
 | **HMD (Server)** | Front-end interface for capture and refinement | HoloLens 2, Unity 6 (6000.0.23f1), MRTK 3 |
-| **PC (Cliet)** | Back-end for video processing and VLM queries | Python 3.11.8 |
+| **PC (Client)** | Back-end for video processing and VLM queries | Python 3.11.8 |
 | **VLM** | Action understanding and text generation | OpenAI GPT-5.2 |
 
 ### Communication Stack
@@ -38,7 +38,7 @@ The underlying communication between the HoloLens 2 and the PC is built upon thr
 
 1.  Launch the client app via visard_client.py (main entry point)
 
-2.  On missing package error, install missing libraries in active environment
+2.  On missing package error, install missing libraries in active environment (current module requires mediapipe 0.10.21)
 
 3.  Specify ws_host and ws_port to listen for incoming connection requests
 
