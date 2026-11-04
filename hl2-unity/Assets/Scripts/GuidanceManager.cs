@@ -14,6 +14,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
 using SerializableInstructions;
+using GuidanceData;
 using System.IO;
 using System;
 using MixedReality.Toolkit.SpatialManipulation;
@@ -21,6 +22,38 @@ using MixedReality.Toolkit.SpatialManipulation;
 #if ENABLE_WINMD_SUPPORT
 using Windows.Storage;
 #endif
+
+namespace GuidanceData
+{
+    [Tooltip("All data of a single work step, loaded into memory before guidance starts")]
+    public class StepData
+    {
+        public string path;                                         // Path to step folder
+        public SerializableInstructionPanelPose panelPose;          // Pose of instruction panel relative to qr-code (null if not available)
+        public string text;                                         // Textual instruction
+        public string videoPath;                                    // Path to video instruction (streamed on display)
+        public SerializableInsituInstructionSet manualSet;          // In-situ instructions from manual authoring (3d.json, null if not available)
+        public SerializableInsituInstructionSet autoSet;            // In-situ instructions from assisted authoring (instructions.json, null if not available)
+        public HandTrackingDataset handtrackingData;                // Handtracking data for assisted in-situ hands (null if not available)
+    }
+
+    [Tooltip("All data of a single workflow, loaded into memory before guidance starts")]
+    public class WorkflowData
+    {
+        public string name;                                         // Name of workflow (folder name)
+        public string path;                                         // Path to workflow folder
+        public List<StepData> steps = new();                        // Steps in numerical order
+        public List<string> warnings = new();                       // Problems encountered while loading (logged on main thread)
+    }
+
+    [Tooltip("Phase of guidance session")]
+    public enum GuidancePhase
+    {
+        Regular,                                                    // Single workflow (regular guidance)
+        Sequential,                                                 // Study mode: workflows are shown one after another
+        Comparison                                                  // Study mode: free switching between workflows on step level
+    }
+}
 
 public class GuidanceManager : MonoBehaviour
 {
@@ -35,22 +68,26 @@ public class GuidanceManager : MonoBehaviour
     [Tooltip("List of existing workflow paths")]
     public List<string> workflowPaths = new();
 
-    [Tooltip("Name of selected workflow to guide user")]
-    public string selectedWorkflowName;
-    [Tooltip("Path to selected workflow data")]
-    public string selectedWorkflowPath;
 #if ENABLE_WINMD_SUPPORT
     [Tooltip("Folder of selected workflow")]
     StorageFolder selectedWorkflowFolder;
     [Tooltip("List of folders containing data for steps of selected workflow")]
     IReadOnlyList<StorageFolder> stepFolders;
 #endif
-    [Tooltip("List of folders containing data for steps of selected workflow (System.IO version)")]
-    public string[] stepFoldersPaths;
-    [Tooltip("Number of steps of selected workflow")]
-    public int numOfSteps;
+    [Tooltip("Names of workflows guided through in this session, in presentation order (single workflow outside study mode)")]
+    public List<string> sessionWorkflowNames = new();
+    [Tooltip("Paths of workflows guided through in this session, in presentation order (single workflow outside study mode)")]
+    public List<string> sessionWorkflowPaths = new();
+    [Tooltip("Data of all workflows of this session, loaded into memory before guidance starts (same order as sessionWorkflowPaths)")]
+    public List<WorkflowData> sets = new();
+    [Tooltip("Index of currently shown workflow in sets")]
+    public int activeSet = 0;
+    [Tooltip("Current phase of guidance session")]
+    public GuidancePhase phase = GuidancePhase.Regular;
     [Tooltip("Step number of currently shown instructions. Starts at 0")]
     public int currentStepNumber = 0;
+    [Tooltip("Height of instruction panel above qr-code in study mode (meters). Stored panel poses are ignored in study mode")]
+    public float studyPanelHeight = 0.5f;
 
     // Hands
     [Tooltip("Handtracking dataset")]
@@ -139,12 +176,34 @@ public class GuidanceManager : MonoBehaviour
 
     [Tooltip("Workflow list")]
     public Transform workflowList;
+    [Tooltip("Workflow list for study mode")]
+    public Transform workflowListStudyMode;
     [Tooltip("No workflows yet text display")]
     public GameObject noWorkflowsText;
     [Tooltip("Collection of toggles for selecting workflow")]
     public ToggleCollection workflowToggles;
     [Tooltip("Select workflow button")]
     public PressableButton selectWorkflowButton;
+    [Tooltip("Collection of toggles for selecting workflow in study mode")]
+    public ToggleCollection studyWorkflowOrderCollection;
+    [Tooltip("Confirm button for workflow selection in study mode")]
+    public PressableButton selectStudyWorkflowsButton;
+    [Tooltip("Number of workflows that have to be selected in study mode")]
+    public int numOfStudyWorkflows = 3;
+    [Tooltip("Toggles of study mode workflow list (same index as workflowNames)")]
+    private List<PressableButton> studyWorkflowToggles = new();
+    [Tooltip("Indices of workflows selected in study mode (ascending list order)")]
+    public List<int> selectedStudyWorkflowIndices = new();
+    [Tooltip("Presentation orders in study mode. Entry i belongs to i-th order toggle, values index into selectedStudyWorkflowIndices")]
+    private readonly int[][] studyOrders =
+    {
+        new[] { 0, 1, 2 },
+        new[] { 0, 2, 1 },
+        new[] { 1, 0, 2 },
+        new[] { 1, 2, 0 },
+        new[] { 2, 0, 1 },
+        new[] { 2, 1, 0 }
+    };
 
     [Tooltip("Step number display")]
     public TMP_Text stepNumberLabel;
@@ -158,6 +217,12 @@ public class GuidanceManager : MonoBehaviour
     public PressableButton previousStepButton;
     [Tooltip("Button on handmenu to return to previous step")]
     public PressableButton hmPrevStepButton;
+    [Tooltip("Step number label on handmenu")]
+    public TMP_Text hmStepNumberLabel;
+    [Tooltip("Toggle collection of switch menu on hand")]
+    public ToggleCollection hmSwitchToggles;
+    [Tooltip("Toggle collection of switch menu on instruction panel")]
+    public ToggleCollection switchToggles;
 
     // Text
     [Tooltip("Text instruction panel")]
@@ -258,6 +323,10 @@ public class GuidanceManager : MonoBehaviour
         // Clear existing lists to avoid duplicates
         workflowNames.Clear();
         workflowPaths.Clear();
+        studyWorkflowToggles.Clear();
+
+        // Study mode selection can only be confirmed once enough workflows are selected
+        selectStudyWorkflowsButton.enabled = false;
 
         try
         {
@@ -299,6 +368,16 @@ public class GuidanceManager : MonoBehaviour
                             // Set label to workflow name
                             listElement.GetComponentInChildren<TMP_Text>().text = dirInfo.Name;
 
+                            // Create list element for study mode (multi selection, same index as regular list)
+                            GameObject studyListElement = Instantiate(workflowListElementPrefab, workflowListStudyMode);
+                            studyListElement.GetComponentInChildren<TMP_Text>().text = dirInfo.Name;
+
+                            // Re-evaluate study selection whenever this element is (un)toggled
+                            PressableButton studyToggle = studyListElement.GetComponentInChildren<PressableButton>();
+                            studyToggle.IsToggled.OnEntered.AddListener(_ => UpdateStudySelection());
+                            studyToggle.IsToggled.OnExited.AddListener(_ => UpdateStudySelection());
+                            studyWorkflowToggles.Add(studyToggle);
+
                             // Store workflow names and paths
                             workflowNames.Add(dirInfo.Name);
                             workflowPaths.Add(dirInfo.FullName);
@@ -326,61 +405,104 @@ public class GuidanceManager : MonoBehaviour
         }
     }
 
-    //// List available workflows to user
-    //public void ListAvailableWorkflows()
-    //{
-    //    // Check if any workflows available at all
-    //    if (PlayerPrefs.HasKey("keys") == true)
-    //    {
-    //        // At least 1 workflow available
-
-    //        // Get all keys (structure: "key_name_1 key_name_2 ..."; key names represent folder names for each workflow)
-    //        string[] keys = PlayerPrefs.GetString("keys").Split(" ");
-
-    //        //Log.Msg($"Found {keys.Length} existing workflows");
-
-    //        // Create list entry for each key
-    //        foreach (string key in keys)
-    //        {
-    //            // Create list element
-    //            GameObject listElement = Instantiate(workflowListElementPrefab, workflowList);
-
-    //            // Set label to workflow name
-    //            listElement.GetComponentInChildren<TMP_Text>().text = key;
-
-    //            // Store workflow names and paths
-    //            workflowNames.Add(key);
-    //            workflowPaths.Add(PlayerPrefs.GetString(key));
-    //        }    
-
-    //        // Update/Enable toggle collection
-    //        workflowToggles.enabled = true;
-
-    //        // Enable select button 
-    //        selectWorkflowButton.enabled = true;
-    //    }
-    //    else
-    //    {
-    //        // No workflow has been created yet
-    //        noWorkflowsText.SetActive(true);
-    //    }
-    //}
-
-    // Load data for selected workflow
-    public async Task LoadWorkflow(int workflowIndex)
+    // Collect workflows selected in study mode and unlock confirmation if exactly the required number is selected
+    public void UpdateStudySelection()
     {
-        // Selected workflow name and path
-        selectedWorkflowName = workflowNames[workflowIndex];
-        selectedWorkflowPath = workflowPaths[workflowIndex];
+        selectedStudyWorkflowIndices.Clear();
+        for (int i = 0; i < studyWorkflowToggles.Count; i++)
+        {
+            if (studyWorkflowToggles[i].IsToggled)
+            {
+                selectedStudyWorkflowIndices.Add(i);
+            }
+        }
+
+        selectStudyWorkflowsButton.enabled = (selectedStudyWorkflowIndices.Count == numOfStudyWorkflows);
+    }
+
+    // Label order toggles with names of selected workflows in respective presentation order
+    public void LabelStudyOrders()
+    {
+        List<StatefulInteractable> orderToggles = studyWorkflowOrderCollection.Toggles;
+        for (int i = 0; i < orderToggles.Count && i < studyOrders.Length; i++)
+        {
+            string label = string.Join(" > ", studyOrders[i].Select(pos => workflowNames[selectedStudyWorkflowIndices[pos]]));
+            orderToggles[i].GetComponentInChildren<TMP_Text>().text = label;
+        }
+    }
+
+    // Arrange selected study workflows in chosen presentation order
+    public void SetStudyOrder(int orderIndex)
+    {
+        sessionWorkflowNames.Clear();
+        sessionWorkflowPaths.Clear();
+        foreach (int pos in studyOrders[orderIndex])
+        {
+            int workflowIndex = selectedStudyWorkflowIndices[pos];
+            sessionWorkflowNames.Add(workflowNames[workflowIndex]);
+            sessionWorkflowPaths.Add(workflowPaths[workflowIndex]);
+        }
+
+        Log.Msg($"Study order {orderIndex + 1}: {string.Join(" > ", sessionWorkflowNames)}");
+
+        // Study mode starts with workflows shown one after another
+        phase = GuidancePhase.Sequential;
+    }
+
+    // Use single selected workflow for this session (regular guidance)
+    public void SetSingleWorkflow(int workflowIndex)
+    {
+        sessionWorkflowNames.Clear();
+        sessionWorkflowPaths.Clear();
+        sessionWorkflowNames.Add(workflowNames[workflowIndex]);
+        sessionWorkflowPaths.Add(workflowPaths[workflowIndex]);
+
+        phase = GuidancePhase.Regular;
+    }
+
+    // Load data of all workflows of this session into memory. Returns whether every workflow contains at least one step
+    public async Task<bool> LoadSession()
+    {
+        sets.Clear();
+        activeSet = 0;
+        currentStepNumber = 0;
+
+        System.Diagnostics.Stopwatch stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+        // Load workflows in parallel on background threads (file access and json parsing only, no other Unity API)
+        WorkflowData[] workflows = await Task.WhenAll(sessionWorkflowPaths.Select(path => Task.Run(() => LoadWorkflowData(path))));
+        sets.AddRange(workflows);
+
+        // Log problems on main thread (Log.Msg creates UI elements on device)
+        foreach (WorkflowData workflow in sets)
+        {
+            foreach (string warning in workflow.warnings)
+            {
+                Log.Msg(warning);
+            }
+        }
+        Log.Msg($"Loaded {sets.Count} workflow(s) with {string.Join("/", sets.Select(w => w.steps.Count))} steps in {stopwatch.ElapsedMilliseconds} ms");
+
+        return sets.Count > 0 && sets.All(w => w.steps.Count > 0);
+    }
+
+    // Read and parse all data of a single workflow. Runs on background thread, therefore only file access and JsonUtility (no other Unity API, no Log.Msg)
+    private WorkflowData LoadWorkflowData(string workflowPath)
+    {
+        WorkflowData workflow = new()
+        {
+            name = new DirectoryInfo(workflowPath).Name,
+            path = workflowPath
+        };
 
         try
         {
             // Folders containing data for each step
-            string[] unsortedPaths = Directory.GetDirectories(selectedWorkflowPath);
+            string[] unsortedPaths = Directory.GetDirectories(workflowPath);
 
             // Numerically sort folders by extracting the number after "step_"
             // Example: "step_2" -> 2, "step_10" -> 10
-            stepFoldersPaths = unsortedPaths.OrderBy(path =>
+            string[] stepFoldersPaths = unsortedPaths.OrderBy(path =>
             {
                 // Get just the folder name (e.g., "step_10")
                 string folderName = new DirectoryInfo(path).Name;
@@ -399,185 +521,261 @@ public class GuidanceManager : MonoBehaviour
                 return int.MaxValue;
             }).ToArray();
 
-            // Number of steps (equal to number of folders)
-            numOfSteps = stepFoldersPaths.Length;
-
-            // Set initial step to 0
-            currentStepNumber = 0;
-
-            //Log.Msg($"Selected workflow consists of {numOfSteps} steps");
+            foreach (string stepPath in stepFoldersPaths)
+            {
+                workflow.steps.Add(LoadStepData(stepPath, workflow));
+            }
         }
         catch (Exception ex)
         {
-            Log.Msg($"Error loading workflow data: {ex.Message}");
-            numOfSteps = 0;
-            currentStepNumber = 0;
+            workflow.warnings.Add($"Error loading workflow data of {workflow.name}: {ex.Message}");
         }
+
+        return workflow;
     }
 
-    // Load specific step
-    public async Task LoadStep()
+    // Read and parse all data of a single step. Runs on background thread (see LoadWorkflowData)
+    private StepData LoadStepData(string stepPath, WorkflowData workflow)
     {
-        // Set step number label
-        stepNumberLabel.text = (currentStepNumber + 1).ToString();
-        // Get relevant path for current step data
-        string currentStepPath = stepFoldersPaths[currentStepNumber];
+        StepData step = new() { path = stepPath };
+        string stepName = $"{workflow.name}/{new DirectoryInfo(stepPath).Name}";
 
-        // Load panel position
+        // Panel pose
         try
         {
-            string panelPath = Path.Combine(currentStepPath, "panel.json");
-
+            string panelPath = Path.Combine(stepPath, "panel.json");
             if (File.Exists(panelPath))
             {
-                // Read json data
-                string json = await File.ReadAllTextAsync(panelPath);
+                step.panelPose = JsonUtility.FromJson<SerializableInstructionPanelPose>(File.ReadAllText(panelPath));
+            }
+        }
+        catch (Exception e)
+        {
+            workflow.warnings.Add($"Failed to load positional data of instruction panel ({stepName}): {e.Message}");
+        }
 
-                // Deserialize json data
-                SerializableInstructionPanelPose panelPose = JsonUtility.FromJson<SerializableInstructionPanelPose>(json);
+        // Text instruction from manual authoring
+        try
+        {
+            string textPath = Path.Combine(stepPath, "text.txt");
+            if (File.Exists(textPath))
+            {
+                step.text = File.ReadAllText(textPath);
+            }
+        }
+        catch (Exception e)
+        {
+            workflow.warnings.Add($"Failed to load text instruction ({stepName}): {e.Message}");
+        }
 
+        // In-situ instructions from manual authoring
+        try
+        {
+            string manual3dPath = Path.Combine(stepPath, "3d.json");
+            if (File.Exists(manual3dPath))
+            {
+                step.manualSet = JsonUtility.FromJson<SerializableInsituInstructionSet>(File.ReadAllText(manual3dPath));
+            }
+        }
+        catch (Exception e)
+        {
+            workflow.warnings.Add($"Failed to load manual 3d instructions ({stepName}): {e.Message}");
+        }
+
+        // Text and in-situ instructions from assisted authoring (incl. handtracking data for in-situ hands)
+        try
+        {
+            string instructionsPath = Path.Combine(stepPath, "instructions.json");
+            if (File.Exists(instructionsPath))
+            {
+                step.autoSet = JsonUtility.FromJson<SerializableInsituInstructionSet>(File.ReadAllText(instructionsPath));
+                step.text = step.autoSet.textInstruction;
+
+                string handsPath = Path.Combine(stepPath, "hands.json");
+                if (File.Exists(handsPath))
+                {
+                    step.handtrackingData = JsonUtility.FromJson<HandTrackingDataset>(File.ReadAllText(handsPath));
+                }
+                else
+                {
+                    workflow.warnings.Add($"No handtracking data for assisted instructions ({stepName})");
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            workflow.warnings.Add($"Failed to load assisted instructions ({stepName}): {e.Message}");
+        }
+
+        // Video (prefer trimmed video instruction)
+        string videoPath = Path.Combine(stepPath, "trimmed_video.mp4");
+        if (!File.Exists(videoPath))
+        {
+            videoPath = Path.Combine(stepPath, "video.mp4");
+        }
+        if (File.Exists(videoPath))
+        {
+            step.videoPath = videoPath;
+        }
+        else
+        {
+            workflow.warnings.Add($"No video instruction ({stepName})");
+        }
+
+        return step;
+    }
+
+    // Show current step of active workflow. All data is already in memory (see LoadSession), only video is streamed from file
+    public void ShowStep()
+    {
+        // Set step number labels (instruction panel and handmenu)
+        stepNumberLabel.text = (currentStepNumber + 1).ToString();
+        hmStepNumberLabel.text = stepNumberLabel.text;
+        // Get data of current step
+        StepData step = sets[activeSet].steps[currentStepNumber];
+
+        // Panel position
+        try
+        {
+            if (phase != GuidancePhase.Regular)
+            {
+                // Study mode: same panel position for all steps and workflows (stored poses are incomplete), gravity aligned above qr-code
+                UIGuidance.instance.instructionView.transform.position = QRGuidance.instance.qrTransform.position + Vector3.up * studyPanelHeight;
+
+                // Face user once (rotation around y-axis only, see MakeObjFaceUser on instruction panel)
+                UIGuidance.instance.instructionView.GetComponent<MakeObjFaceUser>().enabled = true;
+            }
+            else if (step.panelPose != null)
+            {
                 // Set pose of instruction panel
                 // Cache previous parent of instruction panel
                 Transform previousParent = UIGuidance.instance.instructionView.transform.parent;
 
                 // Attach to qr-code reference
                 UIGuidance.instance.instructionView.transform.SetParent(QRGuidance.instance.qrTransform);
-                UIGuidance.instance.instructionView.transform.SetLocalPositionAndRotation(panelPose.position, panelPose.rotation);
+                UIGuidance.instance.instructionView.transform.SetLocalPositionAndRotation(step.panelPose.position, step.panelPose.rotation);
 
                 // Reparent instruction panel
                 UIGuidance.instance.instructionView.transform.SetParent(previousParent, true);
-
-                //Log.Msg($"Successfully loaded instruction panel pose for step {currentStepNumber}");
             }
         }
         catch (Exception e)
         {
-            Log.Msg($"Failed to load positional data of instruction panel: {e.Message}");
+            Log.Msg($"Failed to set pose of instruction panel: {e.Message}");
         }
 
-        // Load text
-        try
-        {
-            // Text instruction from manual authoring
-            string textPath = Path.Combine(currentStepPath, "text.txt");
-            if (File.Exists(textPath))
-            {
-                // Get textual instruction
-                string text = await File.ReadAllTextAsync(textPath);
-
-                // Display textual instruction to user
-                instructionText.text = text;
-
-                // Enable this modality's instruction panel
-                textInstructionPanel.SetActive(true);
-
-                //Log.Msg($"Successfully loaded textual data for step {currentStepNumber}");
-            }
-
-            // Text instructions from assisted authoring
-            string instructionsPath = Path.Combine(currentStepPath, "instructions.json");
-            if (File.Exists(instructionsPath))
-            {
-                // Get instruction json data
-                string json = await File.ReadAllTextAsync(instructionsPath);
-
-                // Deserialize json
-                iSet = JsonUtility.FromJson<SerializableInsituInstructionSet>(json);
-
-                // Get text instruction field
-                instructionText.text = iSet.textInstruction;
-
-                // Enable this modality's instruction panel
-                textInstructionPanel.SetActive(true);
-            }
-        }
-        catch (Exception e)
-        {
-            Log.Msg($"Failed to load text instruction: {e.Message}");
-        }
+        // Text (cleared if missing so no text of another step or workflow remains)
+        instructionText.text = step.text ?? "";
+        textInstructionPanel.SetActive(true);
 
         // Video
         try
         {
-            string videoPath = Path.Combine(currentStepPath, "trimmed_video.mp4");
-
-            // First: Try get trimmed video instruction
-            if (!File.Exists(videoPath))
-            {
-                // No trimmed instruction exists, try default
-                videoPath = Path.Combine(currentStepPath, "video.mp4");
-            }
-
-            if (File.Exists(videoPath))
+            if (step.videoPath != null)
             {
                 // Display video instruction to user
                 videoImage.texture = targetVideoTexture;
-                videoPlayer.url = videoPath;
+                videoPlayer.url = step.videoPath;
 
                 // Prepare video player
                 StartCoroutine(PrepareVideoForPlayback(videoPlayer));
 
                 // Enable this modality's instruction panel
                 videoInstructionPanel.SetActive(true);
-
-                //Log.Msg($"Successfully loaded video data for step {currentStepNumber}");
             }
         }
         catch (Exception e)
         {
-            Log.Msg($"Failed to load video instruction: {e.Message}");
+            Log.Msg($"Failed to show video instruction: {e.Message}");
         }
 
         // 3D instructions
         try
         {
-            // Clear any existing 3D instructions
-            if (instantiated3dObjs != null)
-            {
-                foreach (var obj in instantiated3dObjs)
-                {
-                    Destroy(obj);
-                }
-            }
-            instantiated3dObjs = new();
+            // Clear any existing 3D instructions and hand animation
+            ClearInsituInstructions();
 
-            // Stop any ongoing hand animation
-            ResetVisualization(false);
-
-            // Check if manually authored in-situ instructions or semi-automatically authored ones available for this step
-            string manual3dPath = Path.Combine(currentStepPath, "3d.json");
-            if (File.Exists(manual3dPath))
+            // Manually authored in-situ instructions
+            if (step.manualSet != null)
             {
-                Log.Msg("Found manually authored 3d instructions for this step");
-                // Load manually authored 3d instructions
-                await LoadManual3d(manual3dPath);
+                SpawnManual3d(step.manualSet);
             }
 
-            // Check if semi-automatically authored instructions exist
-            string autoInstructionsPath = Path.Combine(currentStepPath, "instructions.json");
-            if (File.Exists(autoInstructionsPath))
+            // Semi-automatically authored in-situ instructions
+            if (step.autoSet != null)
             {
-                Log.Msg("Found semi-automatically authored 3d instructions for this step");
-                // Load semi-automatically authored 3d instructions
-                await LoadAuto3d(currentStepPath);
+                SpawnAuto3d(step.autoSet, step.handtrackingData);
             }
         }
         catch (Exception e)
         {
-            Log.Msg($"Failed to load 3d instructions or no instructions available for this step: {e.Message}");
+            Log.Msg($"Failed to show 3d instructions: {e.Message}");
         }
     }
 
-    // Method loads 3d instructions authored using manual methods
-    public async Task LoadManual3d(string filePath)
+    // Remove instructions of current step from scene (e.g. while transition dialog between workflows is shown)
+    public void ClearStep()
+    {
+        ClearInsituInstructions();
+        videoPlayer.Stop();
+    }
+
+    // Destroy instantiated 3d instructions and stop any ongoing hand animation
+    private void ClearInsituInstructions()
+    {
+        if (instantiated3dObjs != null)
+        {
+            foreach (var obj in instantiated3dObjs)
+            {
+                Destroy(obj);
+            }
+        }
+        instantiated3dObjs = new();
+
+        ResetVisualization(false);
+    }
+
+    // Whether current step is last step of active workflow
+    public bool IsLastStep()
+    {
+        return currentStepNumber >= sets[activeSet].steps.Count - 1;
+    }
+
+    // Whether another workflow follows active workflow in this session
+    public bool HasNextSet()
+    {
+        return activeSet < sets.Count - 1;
+    }
+
+    // Switch to given workflow of this session while keeping current step number
+    public void SelectSet(int setIndex)
+    {
+        activeSet = setIndex;
+        currentStepNumber = Mathf.Min(currentStepNumber, sets[activeSet].steps.Count - 1);
+        SyncSwitches();
+    }
+
+    // Mark active workflow on both switch menus (instruction panel and handmenu). Toggle collections ignore selections while inactive,
+    // therefore also called when handmenu content gets shown (onFirstHandDetected of right handmenu)
+    public void SyncSwitches()
+    {
+        if (switchToggles.isActiveAndEnabled)
+        {
+            switchToggles.SetSelection(activeSet);
+        }
+        if (hmSwitchToggles.isActiveAndEnabled)
+        {
+            hmSwitchToggles.SetSelection(activeSet);
+        }
+    }
+
+    // Method spawns 3d instructions authored using manual methods
+    public void SpawnManual3d(SerializableInsituInstructionSet manualSet)
     {
         try
         {
-            // Deserialize
-            string json = await File.ReadAllTextAsync(filePath);
-
-            // Deserialize json data
-            iSet = JsonUtility.FromJson<SerializableInsituInstructionSet>(json);
+            // Instruction set of this step
+            iSet = manualSet;
 
             // Extract instruction types stored in instructionType string (possibly multiple in case of manual authoring)
             string[] instructionTypes = iSet.instructionType.Split(" ");
@@ -728,37 +926,21 @@ public class GuidanceManager : MonoBehaviour
         }
     }
 
-    //Method loads 3d instructions authored using semi-automatic methods
-    public async Task LoadAuto3d(string filePath)
+    //Method spawns 3d instructions authored using semi-automatic methods
+    public void SpawnAuto3d(SerializableInsituInstructionSet autoSet, HandTrackingDataset hands)
     {
         try
         {
+            // Instruction set and handtracking data of this step (used by in-situ hands and hand animation)
+            iSet = autoSet;
+            handtrackingData = hands;
+
             // Get reference base (qr code)
             Transform refBase = QRGuidance.instance.qrTransform;
 
             // Load instruction type
             string instructionType = iSet.instructionType;
             Log.Msg($"Instruction type for this step: {instructionType}");
-
-            // Load handtracking data if animated instruction set
-            string handsPath = Path.Combine(filePath, "hands.json");
-
-            if (File.Exists(handsPath))
-            {
-                try
-                {
-                    // Get handtracking data
-                    string hJson = await File.ReadAllTextAsync(handsPath);
-
-                    // Deserialize json data
-                    handtrackingData = JsonUtility.FromJson<HandTrackingDataset>(hJson);
-                }
-                catch (Exception e)
-                {
-                    Log.Msg($"Failed to load hand-based instruction: {e.Message}");
-                    throw;
-                }
-            }
 
             // Different handling depending on instruction type
             GameObject obj = null;
@@ -1077,8 +1259,10 @@ public class GuidanceManager : MonoBehaviour
     // Handle next and prev navigation button behavior
     public void ConfigureNavButtons()
     {
-        nextStepButton.enabled = (numOfSteps > currentStepNumber + 1);
-        hmNextStepButton.enabled = (numOfSteps > currentStepNumber + 1);
+        // In first study phase, last step of a workflow leads to next workflow (or to comparison phase)
+        bool canProceed = !IsLastStep() || phase == GuidancePhase.Sequential;
+        nextStepButton.enabled = canProceed;
+        hmNextStepButton.enabled = canProceed;
         previousStepButton.enabled = (currentStepNumber > 0);
         hmPrevStepButton.enabled = (currentStepNumber > 0);
     }

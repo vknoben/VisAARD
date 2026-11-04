@@ -22,6 +22,9 @@
 # Visual Studio cache directory
 .vs/
 
+# Visual Studio code stuff
+.vscode/
+
 # Gradle cache directory
 .gradle/
 
@@ -76,3 +79,4 @@ StreamPropertiesHelper.cs
 /Assets/WSATestCertificate.pfx
 /Assets/StreamingAssets
 /Assets/StreamingAssets.meta
+/.vscode/

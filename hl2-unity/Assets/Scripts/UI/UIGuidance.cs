@@ -1,9 +1,11 @@
+using GuidanceData;
 using MixedReality.Toolkit.SpatialManipulation;
 using MixedReality.Toolkit.UX;
 using Msg;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class UIGuidance : MonoBehaviour
 {
@@ -27,6 +29,20 @@ public class UIGuidance : MonoBehaviour
     public GameObject hmPrevStepButton;
     [Tooltip("Button on handmenu to terminate guide")]
     public GameObject finishGuideButton;
+    [Tooltip("Current step display on handmenu")]
+    public GameObject hmCurrentStep;
+
+    // Study mode
+    [Tooltip("Handmenu on right hand used for switching between workflows (only in study mode)")]
+    public GameObject handmenuRight;
+    [Tooltip("Switch menu on instruction panel during second phase of study mode (direct comparison)")]
+    public GameObject switchMenu;
+    [Tooltip("Backplate materials of workflows in study mode, in presentation order (A, B, C)")]
+    public Material[] setMaterials;
+    [Tooltip("UI elements (backplates) colored with material of currently shown workflow in study mode")]
+    public List<Graphic> setColorTargets;
+    [Tooltip("Backplates of transition dialogs in study mode, colored with material of workflow shown after confirmation")]
+    public List<Graphic> dialogColorTargets;
 
     // Fov
     [Tooltip("Instruction text displayed to user when checking fov and correct adjustment of HL2")]
@@ -41,6 +57,8 @@ public class UIGuidance : MonoBehaviour
     // System pop ups
     [Tooltip("List of available workflows")]
     public GameObject workflowList;
+    [Tooltip("List of oders for study mode")]
+    public GameObject orderList;
     [Tooltip("Dialog for confirming to leave guide")]
     public GameObject confirmQuitDialog;
     [Tooltip("QRCode panel")]
@@ -49,12 +67,18 @@ public class UIGuidance : MonoBehaviour
     public GameObject instructionView;
     [Tooltip("Dialog to start guide")]
     public GameObject startGuideDialog;
+    [Tooltip("Button to start guide in study mode")]
+    public GameObject startGuideButton;
     [Tooltip("Dialog asking user whether to stream to PC or not (only optional in manual authoring)")]
     public GameObject streamDialog;
     [Tooltip("Websocket dialog for entering server ip")]
     public GameObject wsDialog;
     [Tooltip("Input field for websocket ip")]
     public MRTKTMPInputField websocketIpInput;
+    [Tooltip("Dialog inbetween workflows in study mode")]
+    public GameObject nextSetDialog;
+    [Tooltip("Dialog after seeing all workflows in study mode. Moving on to direct comparison")]
+    public GameObject nextPhaseDialog;
 
     [Tooltip("Directional indicator used to visually guide user towards currently most relevant UI element. Is automatically disabled after specified time")]
     public CustomDirectionalIndicator visualCue;
@@ -66,6 +90,8 @@ public class UIGuidance : MonoBehaviour
 
     [Tooltip("List of currently enabled toggles on handmenu")]
     private List<GameObject> enabledTogglesHandmenu;
+    [Tooltip("Whether current step display on handmenu was shown before settings menu was toggled")]
+    private bool hmCurrentStepWasActive;
 
     #endregion
 
@@ -79,18 +105,50 @@ public class UIGuidance : MonoBehaviour
     }
 
     // User selected workflow
-    public async void WorkflowSelected()
+    public void WorkflowSelected()
     {
         // Get currently selected workflow name
         int workflowIndex = GuidanceManager.instance.workflowToggles.CurrentIndex;
         //Log.Msg("Selected Workflow " + GuidanceManager.instance.workflowNames[workflowIndex]);
 
-        // Load workflow based on selection
-        await GuidanceManager.instance.LoadWorkflow(workflowIndex);
+        // Use selected workflow for this session (data is loaded once qr-code is tracked)
+        GuidanceManager.instance.SetSingleWorkflow(workflowIndex);
+
+        // Update UI (skip streaming)
+        workflowList.SetActive(false);
+        // streamDialog.SetActive(true);
+        qrcodePanel.SetActive(true);
+    }
+
+    // Researcher confirmed workflows to be evaluated in study mode
+    public void StudyWorkflowsSelected()
+    {
+        //Log.Msg($"Selected study workflows {string.Join(", ", GuidanceManager.instance.selectedStudyWorkflowIndices)}");
+
+        // Label orders with names of selected workflows
+        GuidanceManager.instance.LabelStudyOrders();
 
         // Update UI
         workflowList.SetActive(false);
-        streamDialog.SetActive(true);
+        orderList.SetActive(true);
+    }
+
+    // Researcher confirmed presentation order of study workflows
+    public void StudyOrderSelected()
+    {
+        // Get currently selected order
+        int orderIndex = GuidanceManager.instance.studyWorkflowOrderCollection.CurrentIndex;
+        if (orderIndex < 0)
+        {
+            return;
+        }
+
+        // Arrange workflows in chosen order
+        GuidanceManager.instance.SetStudyOrder(orderIndex);
+
+        // Skip streaming dialog (no streaming in study mode) and scan qr
+        orderList.SetActive(false);
+        qrcodePanel.SetActive(true);
     }
 
     // User chose to stream to PC
@@ -126,20 +184,120 @@ public class UIGuidance : MonoBehaviour
     }
 
     // Started guide
-    public async void StartGuide()
+    public void StartGuide()
     {
         // Update UI
         startGuideDialog.SetActive(false);
         hmNextStepButton.SetActive(true);
         hmPrevStepButton.SetActive(true);
-        finishGuideButton.SetActive(true);
+        hmCurrentStep.SetActive(true);
         handmenu.SetActive(true);
 
-        // Load first step
-        await GuidanceManager.instance.LoadStep();
+        // Guide can only be finished once all workflows have been seen in study mode. Switching only in comparison phase
+        finishGuideButton.SetActive(GuidanceManager.instance.phase != GuidancePhase.Sequential);
+        switchMenu.SetActive(false);
+        handmenuRight.SetActive(false);
 
-        // Show first instruction
+        // Show first step
+        ShowCurrentStep();
+    }
+
+    // User wants to proceed to next step
+    public void ProceedToNextStep()
+    {
+        GuidanceManager gm = GuidanceManager.instance;
+
+        // End of workflow in first study phase: pause instructions and show transition dialog
+        if (gm.phase == GuidancePhase.Sequential && gm.IsLastStep())
+        {
+            gm.ClearStep();
+            instructionView.SetActive(false);
+            handmenu.SetActive(false);
+
+            // Dialog takes color of workflow shown after confirmation (next workflow, or last one when comparison phase starts)
+            if (gm.HasNextSet())
+            {
+                ApplySetMaterial(dialogColorTargets, gm.activeSet + 1);
+                nextSetDialog.SetActive(true);
+            }
+            else
+            {
+                ApplySetMaterial(dialogColorTargets, gm.activeSet);
+                nextPhaseDialog.SetActive(true);
+            }
+
+            return;
+        }
+
+        // Show next work step
+        gm.currentStepNumber++;
+        ShowCurrentStep();
+    }
+
+    // User wants to return to previous step
+    public void ReturnToPrevStep()
+    {
+        // Show previous work step
+        GuidanceManager.instance.currentStepNumber--;
+        ShowCurrentStep();
+    }
+
+    // User confirmed transition to next workflow (study mode, sequential phase)
+    public void ConfirmNextSet()
+    {
+        nextSetDialog.SetActive(false);
+        handmenu.SetActive(true);
+
+        // Start next workflow at first step
+        GuidanceManager.instance.activeSet++;
+        GuidanceManager.instance.currentStepNumber = 0;
+        ShowCurrentStep();
+    }
+
+    // User confirmed transition to comparison phase after seeing all workflows (study mode)
+    public void ConfirmNextPhase()
+    {
+        nextPhaseDialog.SetActive(false);
+        handmenu.SetActive(true);
+
+        // Unlock switching between workflows and finishing guide
+        GuidanceManager.instance.phase = GuidancePhase.Comparison;
+        switchMenu.SetActive(true);
+        handmenuRight.SetActive(true);
+        finishGuideButton.SetActive(true);
+
+        // Stay at current step of last workflow and mark it on switch menus
+        GuidanceManager.instance.SyncSwitches();
+        ShowCurrentStep();
+    }
+
+    // User selected workflow on one of the switch menus (study mode, comparison phase). Linked to OnToggleSelected of both toggle collections
+    public void SwitchSet(int setIndex)
+    {
+        GuidanceManager gm = GuidanceManager.instance;
+
+        // Ignore selection of already active workflow (also triggered when syncing both switch menus)
+        if (gm.phase != GuidancePhase.Comparison || setIndex == gm.activeSet)
+        {
+            return;
+        }
+
+        // Show same step of selected workflow
+        gm.SelectSet(setIndex);
+        ShowCurrentStep();
+    }
+
+    // Show current step of active workflow and guide user towards it
+    private void ShowCurrentStep()
+    {
+        GuidanceManager.instance.ShowStep();
         instructionView.SetActive(true);
+
+        // Color UI according to currently shown workflow (study mode only)
+        if (GuidanceManager.instance.phase != GuidancePhase.Regular)
+        {
+            ApplySetMaterial(setColorTargets, GuidanceManager.instance.activeSet);
+        }
 
         // Adjust navigation buttons
         GuidanceManager.instance.ConfigureNavButtons();
@@ -149,34 +307,14 @@ public class UIGuidance : MonoBehaviour
         visualCue.DirectionalTarget = instructionView.transform;
     }
 
-    // User wants to proceed to next step
-    public async void ProceedToNextStep()
+    // Assign backplate material of given workflow to UI elements (study mode)
+    private void ApplySetMaterial(List<Graphic> targets, int setIndex)
     {
-        // Load data for next work step
-        GuidanceManager.instance.currentStepNumber++;
-        await GuidanceManager.instance.LoadStep();
-
-        // Adjust navigation buttons
-        GuidanceManager.instance.ConfigureNavButtons();
-
-        // Enable directional indicator to visually guide user towards next instruction
-        visualCue.gameObject.SetActive(true);
-        visualCue.DirectionalTarget = instructionView.transform;
-    }
-
-    // User wants to return to previous step
-    public async void ReturnToPrevStep()
-    {
-        // Load data for previous work step
-        GuidanceManager.instance.currentStepNumber--;
-        await GuidanceManager.instance.LoadStep();
-
-        // Adjust navigation buttons
-        GuidanceManager.instance.ConfigureNavButtons();
-
-        // Enable directional indicator to visually guide user towards previous instruction
-        visualCue.gameObject.SetActive(true);
-        visualCue.DirectionalTarget = instructionView.transform;
+        Material setMaterial = setMaterials[setIndex];
+        foreach (Graphic target in targets)
+        {
+            target.material = setMaterial;
+        }
     }
 
     // User wants to quit guide
@@ -227,6 +365,10 @@ public class UIGuidance : MonoBehaviour
             toggle.gameObject.SetActive(false);
         }
 
+        // Also hide current step display (no button, therefore not covered above)
+        hmCurrentStepWasActive = hmCurrentStep.activeSelf;
+        hmCurrentStep.SetActive(false);
+
         // Enable default settings options
         debugToggle.SetActive(true);
         retrackQrButton.SetActive(QRGuidance.instance.arMarkerManager.didStart);
@@ -238,6 +380,9 @@ public class UIGuidance : MonoBehaviour
         // Disable default settings options
         debugToggle.SetActive(false);
         retrackQrButton.SetActive(false);
+
+        // Restore current step display
+        hmCurrentStep.SetActive(hmCurrentStepWasActive);
 
         // Disable handmenu if no other toggles currently active
         if (enabledTogglesHandmenu.Count == 0)
@@ -255,13 +400,26 @@ public class UIGuidance : MonoBehaviour
     }
 
     // User finished field of view check
-    public void FinishFovCheck()
+    public async void FinishFovCheck()
     {
         // Disable cheking UI
         fovCheck.SetActive(false);
         fovConfirmButton.SetActive(false);
         startGuideDialog.SetActive(true);
         handmenu.SetActive(false);
+
+        // Load all workflow data while start dialog is shown. Guide can only be started once loading is complete
+        PressableButton startButton = startGuideButton.GetComponent<PressableButton>();
+        startButton.enabled = false;
+        bool loaded = await GuidanceManager.instance.LoadSession();
+        if (loaded)
+        {
+            startButton.enabled = true;
+        }
+        else
+        {
+            Log.Msg("Workflow data incomplete, guide cannot be started");
+        }
     }
 
     #endregion
@@ -326,6 +484,7 @@ public class UIGuidance : MonoBehaviour
         workflowList.SetActive(true);
 
         // Disable the rest by default
+        orderList.SetActive(false);
         qrcodePanel.SetActive(false);
         instructionView.SetActive(false);
         confirmQuitDialog.SetActive(false);
@@ -334,6 +493,8 @@ public class UIGuidance : MonoBehaviour
         streamDialog.SetActive(false);
         wsDialog.SetActive(false);
         handmenu.SetActive(false);
+        nextSetDialog.SetActive(false);
+        nextPhaseDialog.SetActive(false);
 
         //Log.Msg($"Current locale set to: {(LocaleManager.currentLocale == LocaleManager.LocaleTypes.German ? "German" : "English")}");
         //Log.Msg($"Current handedness set to: {(HandednessManager.rightHanded ? "Right handed" : "Left handed")}");

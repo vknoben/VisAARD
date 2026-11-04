@@ -1347,7 +1347,6 @@ GameObject:
   - component: {fileID: 3353166635875365669}
   - component: {fileID: 3802096703500714369}
   - component: {fileID: 6702098377604784553}
-  - component: {fileID: 4334015413311790594}
   m_Layer: 5
   m_Name: WFListItem
   m_TagString: Untagged
@@ -1966,20 +1965,6 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
---- !u!114 &4334015413311790594
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5334932376164601851}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 887413f36d993624185e96e7a5c71622, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  seeItSayItLabel: {fileID: 195075663694189108}
-  positionControl: {fileID: 0}
 --- !u!1 &5529430950306454915
 GameObject:
   m_ObjectHideFlags: 0
