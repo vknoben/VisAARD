@@ -151,6 +151,20 @@ public class UIGuidance : MonoBehaviour
         qrcodePanel.SetActive(true);
     }
 
+    // Researcher started tutorial (study mode with fixed placeholder workflows for familiarization)
+    public void StartTutorial()
+    {
+        if (!GuidanceManager.instance.SetTutorialSession())
+        {
+            return;
+        }
+
+        // Skip workflow and order selection and scan qr
+        workflowList.SetActive(false);
+        orderList.SetActive(false);
+        qrcodePanel.SetActive(true);
+    }
+
     // User chose to stream to PC
     public void StreamToPc()
     {
@@ -399,12 +413,18 @@ public class UIGuidance : MonoBehaviour
         }
     }
 
-    // User finished field of view check
-    public async void FinishFovCheck()
+    // User finished field of view check (currently skipped, see QRGuidance)
+    public void FinishFovCheck()
     {
         // Disable cheking UI
         fovCheck.SetActive(false);
         fovConfirmButton.SetActive(false);
+        ShowStartGuideDialog();
+    }
+
+    // Show start dialog and load workflow data
+    public async void ShowStartGuideDialog()
+    {
         startGuideDialog.SetActive(true);
         handmenu.SetActive(false);
 

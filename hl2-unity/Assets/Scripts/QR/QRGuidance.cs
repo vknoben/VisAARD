@@ -258,9 +258,11 @@ public class QRGuidance
                     {
                         // Update UI (Only if initial tracking)
                         qrcodePanel.SetActive(false);
-                        UIGuidance.instance.handmenu.SetActive(true);
-                        UIGuidance.instance.fovCheck.SetActive(true);
-                        UIGuidance.instance.fovConfirmButton.SetActive(true);
+                        // Fov check skipped in guidance mode, proceed directly to start dialog
+                        //UIGuidance.instance.handmenu.SetActive(true);
+                        //UIGuidance.instance.fovCheck.SetActive(true);
+                        //UIGuidance.instance.fovConfirmButton.SetActive(true);
+                        UIGuidance.instance.ShowStartGuideDialog();
                     }
                 }
             }

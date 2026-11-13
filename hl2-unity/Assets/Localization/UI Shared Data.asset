@@ -687,6 +687,10 @@ MonoBehaviour:
     m_Key: NextPhaseDialog
     m_Metadata:
       m_Items: []
+  - m_Id: 271478178747457536
+    m_Key: TutorialLabel
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

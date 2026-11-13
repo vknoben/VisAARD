@@ -190,6 +190,8 @@ public class GuidanceManager : MonoBehaviour
     public PressableButton selectStudyWorkflowsButton;
     [Tooltip("Number of workflows that have to be selected in study mode")]
     public int numOfStudyWorkflows = 3;
+    // Folder in StreamingAssets containing tutorial workflows (one subfolder per workflow), not listed as regular workflow
+    private const string TutorialFolderName = "Tutorial";
     [Tooltip("Toggles of study mode workflow list (same index as workflowNames)")]
     private List<PressableButton> studyWorkflowToggles = new();
     [Tooltip("Indices of workflows selected in study mode (ascending list order)")]
@@ -350,8 +352,9 @@ public class GuidanceManager : MonoBehaviour
                         {
                             DirectoryInfo dirInfo = new DirectoryInfo(dir);
 
-                            // Skip "Speech" folder created by MRTK's Speech Command system
-                            if (dirInfo.Name.Equals("Speech", StringComparison.OrdinalIgnoreCase))
+                            // Skip "Speech" folder created by MRTK's Speech Command system and tutorial folder (started separately)
+                            if (dirInfo.Name.Equals("Speech", StringComparison.OrdinalIgnoreCase) ||
+                                dirInfo.Name.Equals(TutorialFolderName, StringComparison.OrdinalIgnoreCase))
                             {
                                 continue;
                             }
@@ -447,6 +450,39 @@ public class GuidanceManager : MonoBehaviour
 
         // Study mode starts with workflows shown one after another
         phase = GuidancePhase.Sequential;
+    }
+
+    // Use fixed tutorial workflows for this session (study mode, familiarization with interface before actual study). Returns whether tutorial data is complete
+    public bool SetTutorialSession()
+    {
+        sessionWorkflowNames.Clear();
+        sessionWorkflowPaths.Clear();
+
+        string tutorialPath = Path.Combine(Application.streamingAssetsPath, TutorialFolderName);
+        if (!Directory.Exists(tutorialPath))
+        {
+            Log.Msg($"Tutorial data not found at {tutorialPath}");
+            return false;
+        }
+
+        // Tutorial workflows are presented in alphabetical order of their folder names (A, B, C)
+        foreach (string dir in Directory.GetDirectories(tutorialPath).OrderBy(d => d, StringComparer.OrdinalIgnoreCase))
+        {
+            sessionWorkflowNames.Add(new DirectoryInfo(dir).Name);
+            sessionWorkflowPaths.Add(dir);
+        }
+
+        if (sessionWorkflowPaths.Count != numOfStudyWorkflows)
+        {
+            Log.Msg($"Tutorial requires {numOfStudyWorkflows} workflows, found {sessionWorkflowPaths.Count}");
+            return false;
+        }
+
+        Log.Msg($"Tutorial: {string.Join(" > ", sessionWorkflowNames)}");
+
+        // Tutorial simulates study mode, starting with workflows shown one after another
+        phase = GuidancePhase.Sequential;
+        return true;
     }
 
     // Use single selected workflow for this session (regular guidance)
