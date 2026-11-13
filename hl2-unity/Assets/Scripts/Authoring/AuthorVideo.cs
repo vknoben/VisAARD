@@ -237,6 +237,8 @@ public class AuthorVideo : MonoBehaviour
             vidName = "video.mp4";
             vidFile = await vidFolder.CreateFileAsync(vidName, CreationCollisionOption.ReplaceExisting);
             vidPath = vidFile.Path;
+            // Discard trimmed path of any previous capture so it is not displayed instead of this capture (e.g. if this capture is too short to be trimmed)
+            trimmedVidPath = null;
 
             // Prepare media recording
             mediaRecording = await mediaCapture.PrepareLowLagRecordToStorageFileAsync(MediaEncodingProfile.CreateMp4(VideoEncodingQuality.Auto), vidFile);
@@ -340,7 +342,12 @@ public class AuthorVideo : MonoBehaviour
         {
             // Don't trim then if video too short
             //Log.Msg("Did not trim video because video not long enough");
-            
+
+            // Still finish capture process (original untrimmed video is displayed)
+            vidProcessingText.SetActive(false);
+            CleanUpMediaCapture();
+            DisplayCapturedVideo();
+
             return;
         }
 

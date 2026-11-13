@@ -1099,7 +1099,8 @@ public class GuidanceManager : MonoBehaviour
     {
         // Get handframe closest to target point in time
         float handFrameTime = handtrackingData.frames[frameIterator].timestamp;
-        while (pvFrameTime > handFrameTime)
+        // Stop at last frame if target time exceeds handtracking data
+        while (pvFrameTime > handFrameTime && frameIterator < handtrackingData.frames.Count - 1)
         {
             frameIterator++;
             handFrameTime = handtrackingData.frames[frameIterator].timestamp;
@@ -1240,7 +1241,7 @@ public class GuidanceManager : MonoBehaviour
                 SerializableHandJointPose sRightJointPose = frame.jointPosesRight[i];
 
                 // Joint transform to be set
-                Transform rightJointTransform = rightRiggedVisualJointsArray[i];
+                Transform rightJointTransform = clonedRightJointsArray[i];
 
                 switch ((TrackedHandJoint)i)
                 {
@@ -1594,7 +1595,8 @@ public class GuidanceManager : MonoBehaviour
             {
                 // Get temporally closest handtracking frame
                 float handTime = handtrackingData.frames[frameIterator].timestamp;
-                while (handTime <= frameTime)
+                // Stop at last frame if frame time exceeds handtracking data
+                while (handTime <= frameTime && frameIterator < handtrackingData.frames.Count - 1)
                 {
                     frameIterator++;
                     handTime = handtrackingData.frames[frameIterator].timestamp;

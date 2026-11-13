@@ -90,7 +90,7 @@ public class QRAuth : MonoBehaviour
     public float qrVisualsStayActiveFor = 3f;
 
     [Tooltip("Visuals outlining qr-code")]
-    private List<MeshRenderer> visRenderer;
+    private List<MeshRenderer> visRenderer = new();
 
     [Tooltip("Child object of qr-code transform housing all visual content (MarkerContent)")]
     public GameObject markerContent;

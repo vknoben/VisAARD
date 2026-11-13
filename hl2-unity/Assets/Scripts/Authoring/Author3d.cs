@@ -613,8 +613,8 @@ public class Author3d : MonoBehaviour
     // Called on every manipulation start of a 3D instruction
     public void UserStartedSpatialArrangement(SelectEnterEventArgs eventArgs)
     {
-        // Check if this is initial manipulation or not
-        if (authInProgress)
+        // Check if this is initial manipulation of newly authored object or not (authObj is null when re-manipulating already finalized object)
+        if (authInProgress || authObj == null)
         {
             // Not initial manipulation
             return;
@@ -640,6 +640,12 @@ public class Author3d : MonoBehaviour
     // User finalized 3D instruction
     public void Finalize3dInstruction()
     {
+        // Nothing to finalize if no 3D instruction is currently authored
+        if (authObj == null)
+        {
+            return;
+        }
+
         // Save type, position, rotation, scale relative to qr-code
         Transform qrTransform = QRAuth.instance.qrTransform;
         Instruction3d instruction3d = new Instruction3d
@@ -735,7 +741,7 @@ public class Author3d : MonoBehaviour
         // Update UI
         update3dButtonPanel.SetActive(false);
         finalize3dButtonPanel.SetActive(true);
-        finalize3dButttonHandmenu.SetActive(true);
+        finalize3dButttonHandmenu.SetActive(false);
         finalize3dButtonPanel.GetComponent<PressableButton>().enabled = false;
         doneButton.GetComponent<PressableButton>().enabled = true;
 

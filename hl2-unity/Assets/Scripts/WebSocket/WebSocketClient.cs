@@ -3,6 +3,7 @@ using Msg;
 using NativeWebSocket;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -219,8 +220,8 @@ public class WebSocketClient : MonoBehaviour
                 float trimFromEnd = 0f;
                 try
                 {
-                    trimFromStart = float.Parse(trimJson.from_start);
-                    trimFromEnd = float.Parse(trimJson.from_end);
+                    trimFromStart = float.Parse(trimJson.from_start, CultureInfo.InvariantCulture);
+                    trimFromEnd = float.Parse(trimJson.from_end, CultureInfo.InvariantCulture);
                 }
                 catch
                 {

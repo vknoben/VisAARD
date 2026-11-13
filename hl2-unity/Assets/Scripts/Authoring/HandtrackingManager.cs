@@ -965,7 +965,8 @@ public class HandtrackingManager : MonoBehaviour
             {
                 // Get temporally closest handtracking frame
                 float handTime = handtrackingDataset.frames[frameIterator].timestamp;
-                while (handTime <= frameTime)
+                // Stop at last frame if frame time exceeds handtracking data
+                while (handTime <= frameTime && frameIterator < handtrackingDataset.frames.Count - 1)
                 {
                     frameIterator++;
                     handTime = handtrackingDataset.frames[frameIterator].timestamp;
@@ -1524,12 +1525,12 @@ public class HandtrackingManager : MonoBehaviour
             SpawnStaticHandInstruction(leftUsed, rightUsed);
 
             // Cache key time (init hand action moment)
-            InstructionManager.Instance.currentInstructionSet.keyTime = frameTimes[0];
+            InstructionManager.Instance.KeyTime = frameTimes[0];
 
             // Cache start and end times for potential animation
-            InstructionManager.Instance.currentInstructionSet.isAnimated = true;
-            InstructionManager.Instance.currentInstructionSet.startTime = frameTimes[0];
-            InstructionManager.Instance.currentInstructionSet.endTime = frameTimes[^1];
+            InstructionManager.Instance.IsAnimated = true;
+            InstructionManager.Instance.StartTime = frameTimes[0];
+            InstructionManager.Instance.EndTime = frameTimes[^1];
         }
 
         // Cache generated 3D instructions
@@ -1805,7 +1806,8 @@ public class HandtrackingManager : MonoBehaviour
             {
                 // Get temporally closest handtracking frame
                 float handFrameTime = htds.frames[frameIterator].timestamp;
-                while (pvFrameTime > handFrameTime)
+                // Stop at last frame if target time exceeds handtracking data
+                while (pvFrameTime > handFrameTime && frameIterator < htds.frames.Count - 1)
                 {
                     frameIterator++;
                     handFrameTime = htds.frames[frameIterator].timestamp;

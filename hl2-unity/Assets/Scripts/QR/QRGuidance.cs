@@ -30,7 +30,7 @@ public class QRGuidance
     public string payloadQr2;
 
     [Tooltip("Renderer components on QR-Code visualizer")]
-    private List<MeshRenderer> visRenderer = null;
+    private List<MeshRenderer> visRenderer = new();
 
     // Properties for stabilizing qr-code tracking
     [Tooltip("Size of each position bin in meters")]
