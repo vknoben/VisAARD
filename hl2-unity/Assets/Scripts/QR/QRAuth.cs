@@ -41,47 +41,27 @@ public class QRAuth : MonoBehaviour
     //private List<MeshRenderer> visRenderer = null;
 
     // Properties for stabilizing qr-code tracking
-    [Tooltip("Size of each position bin in meters")]
-    public float posRes = 0.005f;
-    [Tooltip("Size of each rotation bin in degrees")]
-    public float rotRes = 2.0f;
-    [Tooltip("Counter for number of times qr-code should be tracked until saturated")]
-    public int trackingSaturationCounter = 100;
-    [Tooltip("Counter for number of times qr-code has been tracked")]
+    [Tooltip("Number of initial qr-code detections discarded (detected at edge of detection range and thus less accurate)")]
+    public int discardFirstSamples = 10;
+    [Tooltip("Number of qr-code poses collected (after discarded ones) until pose is locked")]
+    public int trackingSaturationCounter = 60;
+    [Tooltip("Counter for number of times qr-code has been tracked (incl. discarded detections)")]
     private int trackingCounter = 0;
+    [Tooltip("Max. distance of a sample position to median position to count as inlier (in meters)")]
+    public float maxPosDeviation = 0.01f;
+    [Tooltip("Max. angle between a sample rotation and median rotation to count as inlier (in degrees)")]
+    public float maxRotDeviation = 3f;
+    [Tooltip("Snap qr-code normal to vertical (code lying flat) or to horizontal plane (code hanging on wall) to remove tilt noise")]
+    public bool correctTilt = true;
+    [Tooltip("Max. deviation of measured qr-code normal from vertical/horizontal for tilt correction to be applied (in degrees, < 45)")]
+    public float tiltSnapTolerance = 20f;
     [Tooltip("Timestamp of tracking initialization (in seconds since startup)")]
     private float initTrackingTime = 0f;
 
-    // Class for pose key, accessing pose bins
-    public struct PoseKey
-    {
-        public Vector3Int posBin;
-        public Vector3Int rotBin;
-
-        public PoseKey(Vector3 pos, Vector3 euler, float pRes, float rRes)
-        {
-            posBin = new Vector3Int(
-                Mathf.RoundToInt(pos.x / pRes),
-                Mathf.RoundToInt(pos.y / pRes),
-                Mathf.RoundToInt(pos.z / pRes)
-            );
-            rotBin = new Vector3Int(
-                Mathf.RoundToInt(euler.x / rRes),
-                Mathf.RoundToInt(euler.y / rRes),
-                Mathf.RoundToInt(euler.z / rRes)
-            );
-        }
-    }
-
-    // Class for qr-code bin of tracked poses
-    public class PoseBin
-    {
-        public List<Vector3> positions = new List<Vector3>();
-        public List<Quaternion> rotations = new List<Quaternion>();
-    }
-
-    // Container for qr-code pose bins
-    private Dictionary<PoseKey, PoseBin> poseVotes = new Dictionary<PoseKey, PoseBin>();
+    [Tooltip("List of positions of qr code recorded during tracking")]
+    private List<Vector3> trackingPositions = new();
+    [Tooltip("List of rotations of qr code recorded during tracking")]
+    private List<Quaternion> trackingRotations = new();
 
     [Tooltip("Reference transform of last tracked qrcode")]
     public Transform qrTransform;
@@ -150,9 +130,8 @@ public class QRAuth : MonoBehaviour
         //{
         //    Destroy(trackable.gameObject);
         //}
-        // Reset binning
-        trackingCounter = 0;
-        poseVotes.Clear();
+        // Reset collected samples
+        ResetSamples();
         // Reset relevant QR-code IDs
         idQr1 = new TrackableId();
         idQr2 = new TrackableId();
@@ -166,7 +145,8 @@ public class QRAuth : MonoBehaviour
         // Store time of initialization in seconds since startup
         initTrackingTime = Time.realtimeSinceStartup;
 
-        // Subscribe to marker change events
+        // Subscribe to marker change events (unsubscribe first so that callback is never subscribed twice, e.g. rescan during ongoing scan)
+        arMarkerManager.markersChanged -= OnQRCodesChanged;
         arMarkerManager.markersChanged += OnQRCodesChanged;
 
         // Hide/Disable rescan button (if previously active)
@@ -188,7 +168,6 @@ public class QRAuth : MonoBehaviour
     }
 
     // Callback for change events
-    // Only entered if TrackingState -> Tracking
     void OnQRCodesChanged(ARMarkersChangedEventArgs args)
     {
         foreach (ARMarker qrCode in args.added)
@@ -209,10 +188,7 @@ public class QRAuth : MonoBehaviour
             // Check if relevant qr-code
             if (arMarkerManager.GetDecodedString(qrCode.trackableId) == payloadQr1)
             {
-                // This is main anchoring code
-
-                // Store id
-                idQr1 = qrCode.trackableId;
+                // This is main anchoring code (id is stored on first reliable update, see below)
 
                 // Set visualizer material to bad tracking material by default
                 visRenderer = qrCode.GetComponentsInChildren<MeshRenderer>().Where(t => t.gameObject.CompareTag("qrVis")).ToList();
@@ -234,74 +210,93 @@ public class QRAuth : MonoBehaviour
         foreach (ARMarker qrCode in args.removed)
         {
             //Log.Msg($"REMOVED QR code with ID: {qrCode.trackableId}");
+
+            // Restart sample collection if relevant qr-code was lost
+            if (qrCode.trackableId == idQr1)
+            {
+                idQr1 = TrackableId.invalidId;
+                ResetSamples();
+            }
         }
 
         foreach (ARMarker qrCode in args.updated)
         {
             //Log.Msg($"Name: {qrCode.name}, time: {qrCode.lastSeenTime}");
-            
-            // Check if updating relevant QR-code
-            if (arMarkerManager.GetDecodedString(qrCode.trackableId) == payloadQr1)
+
+            // Only consider reliable (non-stale) tracking
+            if (qrCode.trackingState != TrackingState.Tracking)
             {
-                // Store tracking pose
-                qrCode.transform.GetPositionAndRotation(out var pos, out var rot);
+                continue;
+            }
 
-                // Generate Key
-                PoseKey key = new PoseKey(pos, rot.eulerAngles, posRes, rotRes);
-
-                // Add to Bin
-                if (!poseVotes.ContainsKey(key))
+            // Only consider relevant qr-code (payload) and only samples of one single marker (id)
+            if (idQr1 == TrackableId.invalidId)
+            {
+                // Relevant marker not known yet (also after rescan, as already known marker is only updated, not added again)
+                if (arMarkerManager.GetDecodedString(qrCode.trackableId) != payloadQr1)
                 {
-                    poseVotes[key] = new PoseBin();
+                    continue;
                 }
-                poseVotes[key].positions.Add(pos);
-                poseVotes[key].rotations.Add(rot);
+                idQr1 = qrCode.trackableId;
+            }
+            else if (qrCode.trackableId != idQr1)
+            {
+                continue;
+            }
 
-                // Increase tracking counter for eventual saturation
-                trackingCounter++;
+            // Discard first detections (at edge of detection range and thus less accurate)
+            trackingCounter++;
+            if (trackingCounter <= discardFirstSamples)
+            {
+                continue;
+            }
 
-                // Check if tracking has saturated yet
-                if (trackingCounter >= trackingSaturationCounter)
+            // Store tracking pose
+            qrCode.transform.GetPositionAndRotation(out var pos, out var rot);
+            trackingPositions.Add(pos);
+            trackingRotations.Add(rot);
+
+            // Check if enough samples have been collected
+            if (trackingPositions.Count >= trackingSaturationCounter)
+            {
+                FinalizeStablePose(qrCode);
+
+                // Set visualizer material to good tracking material
+                visRenderer = qrCode.GetComponentsInChildren<MeshRenderer>().Where(t => t.gameObject.CompareTag("qrVis")).ToList();
+                foreach (var rend in visRenderer)
                 {
-                    FinalizeStablePose(qrCode);
+                    rend.material = goodTrackingMat;
+                }
+                //Log.Msg("Update marker visuals to indicate tracked state (green)");
 
-                    // Set visualizer material to good tracking material
-                    visRenderer = qrCode.GetComponentsInChildren<MeshRenderer>().Where(t => t.gameObject.CompareTag("qrVis")).ToList();
-                    foreach (var rend in visRenderer)
+                // Cache marker content object
+                markerContent = qrCode.transform.Find("MarkerContent").gameObject;
+                //Log.Msg($"MarkerContent object: {(markerContent == null ? "None" : markerContent.name)}");
+
+                // Only if initial tracking
+                if (qrcodePanel.activeSelf)
+                {
+                    //Log.Msg("Moving on to authoring");
+
+                    // Update UI
+                    if (WebSocketClient.instance.assistedAuthMode)
                     {
-                        rend.material = goodTrackingMat;
+                        //UIAuth.instance.aVideoAuthPanel.SetActive(true);
+                        UIAuth.instance.aStepPreview.SetActive(true);
                     }
-                    //Log.Msg("Update marker visuals to indicate tracked state (green)");
-
-                    // Cache marker content object
-                    markerContent = qrCode.transform.Find("MarkerContent").gameObject;
-                    //Log.Msg($"MarkerContent object: {(markerContent == null ? "None" : markerContent.name)}");
-
-                    // Only if initial tracking
-                    if (qrcodePanel.activeSelf)
+                    else
                     {
-                        //Log.Msg("Moving on to authoring");
-
-                        // Update UI
-                        if (WebSocketClient.instance.assistedAuthMode)
-                        {
-                            //UIAuth.instance.aVideoAuthPanel.SetActive(true);
-                            UIAuth.instance.aStepPreview.SetActive(true);
-                        }
-                        else
-                        {
-                            //UIAuth.instance.mTextAuthPanel.SetActive(true);
-                            //UIAuth.instance.mVideoAuthPanel.SetActive(true);
-                            //UIAuth.instance.mAuth3dPanel.SetActive(true);
-                            UIAuth.instance.mStepPreview.SetActive(true);
-                        }
-
-                        // In both cases (manual and assisted)
-                        qrcodePanel.SetActive(false);
-                        finishSetupButton.SetActive(true);
-                        placePanelsButton.SetActive(true);
-                        handmenu.SetActive(true);
+                        //UIAuth.instance.mTextAuthPanel.SetActive(true);
+                        //UIAuth.instance.mVideoAuthPanel.SetActive(true);
+                        //UIAuth.instance.mAuth3dPanel.SetActive(true);
+                        UIAuth.instance.mStepPreview.SetActive(true);
                     }
+
+                    // In both cases (manual and assisted)
+                    qrcodePanel.SetActive(false);
+                    finishSetupButton.SetActive(true);
+                    placePanelsButton.SetActive(true);
+                    handmenu.SetActive(true);
                 }
             }
         }
@@ -472,24 +467,135 @@ public class QRAuth : MonoBehaviour
         return avgPos;
     }
 
-    // Calculate average over rotations
-    private Quaternion AverageRotation(List<Quaternion> rotations)
+    // Calculate average over rotations (aligned to reference, as q and -q represent same rotation)
+    private Quaternion AverageRotation(List<Quaternion> rotations, Quaternion reference)
     {
-        Quaternion avgRot = Quaternion.identity;
-        int count = 0;
+        Vector4 sum = Vector4.zero;
 
         foreach (var rot in rotations)
         {
-            if (count == 0)
-                avgRot = rot;
-            else
-                avgRot = Quaternion.Slerp(avgRot, rot, 1f / (count + 1));
-            count++;
+            Vector4 q = new Vector4(rot.x, rot.y, rot.z, rot.w);
+            if (Quaternion.Dot(rot, reference) < 0f)
+            {
+                q = -q;
+            }
+            sum += q;
         }
+        sum.Normalize();
 
         //Log.Msg("Calculated avg ar rotation");
 
-        return avgRot;
+        return new Quaternion(sum.x, sum.y, sum.z, sum.w);
+    }
+
+    // Calculate component-wise median over positions
+    private Vector3 MedianPosition(List<Vector3> positions)
+    {
+        return new Vector3(
+            Median(positions.Select(p => p.x)),
+            Median(positions.Select(p => p.y)),
+            Median(positions.Select(p => p.z)));
+    }
+
+    // Calculate median of values
+    private float Median(IEnumerable<float> values)
+    {
+        float[] sorted = values.OrderBy(v => v).ToArray();
+        int mid = sorted.Length / 2;
+
+        return sorted.Length % 2 == 0 ? (sorted[mid - 1] + sorted[mid]) / 2f : sorted[mid];
+    }
+
+    // Calculate median rotation (sample with smallest summed angle to all other samples)
+    private Quaternion MedianRotation(List<Quaternion> rotations)
+    {
+        Quaternion medianRot = rotations[0];
+        float minAngleSum = float.MaxValue;
+
+        foreach (var candidate in rotations)
+        {
+            float angleSum = 0f;
+            foreach (var other in rotations)
+            {
+                angleSum += Quaternion.Angle(candidate, other);
+            }
+
+            if (angleSum < minAngleSum)
+            {
+                minAngleSum = angleSum;
+                medianRot = candidate;
+            }
+        }
+
+        return medianRot;
+    }
+
+    // Estimate robust pose from collected samples: Reject outliers relative to median pose, then average remaining inliers
+    private void EstimateRobustPose(out Vector3 finalPos, out Quaternion finalRot)
+    {
+        // Robust reference pose
+        Vector3 medianPos = MedianPosition(trackingPositions);
+        Quaternion medianRot = MedianRotation(trackingRotations);
+
+        // Collect inliers (close to median in both position and rotation)
+        List<Vector3> inlierPositions = new();
+        List<Quaternion> inlierRotations = new();
+        for (int i = 0; i < trackingPositions.Count; i++)
+        {
+            if (Vector3.Distance(trackingPositions[i], medianPos) <= maxPosDeviation &&
+                Quaternion.Angle(trackingRotations[i], medianRot) <= maxRotDeviation)
+            {
+                inlierPositions.Add(trackingPositions[i]);
+                inlierRotations.Add(trackingRotations[i]);
+            }
+        }
+
+        // Average inliers if at least half of the samples remain, otherwise fall back to median pose
+        if (inlierPositions.Count * 2 >= trackingPositions.Count)
+        {
+            finalPos = AveragePosition(inlierPositions);
+            finalRot = AverageRotation(inlierRotations, medianRot);
+        }
+        else
+        {
+            finalPos = medianPos;
+            finalRot = medianRot;
+        }
+    }
+
+    // Remove tilt noise using gravity: Snap qr-code normal (local z-axis) to vertical if code is lying flat or to horizontal plane if code is hanging on wall
+    private Quaternion CorrectTilt(Quaternion rot)
+    {
+        Vector3 normal = rot * Vector3.forward;
+        float angleToUp = Vector3.Angle(normal, Vector3.up);
+
+        Vector3 target;
+        if (angleToUp <= tiltSnapTolerance || angleToUp >= 180f - tiltSnapTolerance)
+        {
+            // Code lying flat (e.g. on table): Normal points straight up or down
+            target = angleToUp <= 90f ? Vector3.up : Vector3.down;
+        }
+        else if (Mathf.Abs(angleToUp - 90f) <= tiltSnapTolerance)
+        {
+            // Code hanging (e.g. on wall): Normal lies in horizontal plane, keeping its direction
+            target = Vector3.ProjectOnPlane(normal, Vector3.up).normalized;
+        }
+        else
+        {
+            // Neither lying nor hanging (e.g. slanted surface): No correction
+            return rot;
+        }
+
+        // Minimal rotation aligning measured normal with target (rotation around normal is preserved)
+        return Quaternion.FromToRotation(normal, target) * rot;
+    }
+
+    // Reset collected tracking samples
+    private void ResetSamples()
+    {
+        trackingCounter = 0;
+        trackingPositions.Clear();
+        trackingRotations.Clear();
     }
 
     // Disable qr code after specified amount of time after successful tracking
@@ -508,13 +614,14 @@ public class QRAuth : MonoBehaviour
     // Lock in qr-code pose
     void FinalizeStablePose(ARMarker qrCode)
     {
-        // 1. Find the bin with the highest count (the consensus)
-        var bestBinEntry = poseVotes.OrderByDescending(x => x.Value.positions.Count).First();
-        PoseBin winner = bestBinEntry.Value;
+        // 1. Robust estimate of pose from collected samples
+        EstimateRobustPose(out Vector3 finalPos, out Quaternion finalRot);
 
-        // 2. Average ONLY the data in that bin
-        Vector3 finalPos = AveragePosition(winner.positions);
-        Quaternion finalRot = AverageRotation(winner.rotations);
+        // 2. Remove tilt noise using gravity
+        if (correctTilt)
+        {
+            finalRot = CorrectTilt(finalRot);
+        }
 
         // 3. Set the transform and stop
         qrCode.transform.SetPositionAndRotation(finalPos, finalRot);
@@ -522,8 +629,6 @@ public class QRAuth : MonoBehaviour
 
         arMarkerManager.markersChanged -= OnQRCodesChanged;
         arMarkerManager.enabled = false;
-
-        //Log.Msg($"Locked Pose! Winning bin had {winner.positions.Count} votes.");
 
         // Enable rescan button on QR-Code
         rescanButton = qrCode.GetComponentInChildren<PressableButton>(true);

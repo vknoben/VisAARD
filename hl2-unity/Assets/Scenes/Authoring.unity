@@ -175546,7 +175546,7 @@ MonoBehaviour:
   payloadQr2: 2
   posRes: 0.005
   rotRes: 2
-  trackingSaturationCounter: 30
+  trackingSaturationCounter: 60
   qrTransform: {fileID: 0}
   qrVisualsStayActiveFor: 3
   markerContent: {fileID: 0}
